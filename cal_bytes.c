@@ -22,15 +22,17 @@ int main(void) {
     int sum;   // 合計バイト数を表すint型変数
 
     // 変数の個数をkyeboardから入力
-    printf("char型、int型、short型の変数の個数をそれぞれ入力してください。\n");
+    printf("char型、int型、short型の変数の個数をそれぞれ入力してください。: ");
     scanf("%d %d %d", &numc, &numi, &nums);
 
     // 合計バイト数を計算
     sum = (numc * sizeof(char)) + (numi * sizeof(int)) + (nums * sizeof(short));
 
     // 計算結果を表示
-    printf("cahr型%d、int型%d、short型%dの変数の合計バイト数は%dバイトです。\n",
-           numc, numi, nums, sum);
+    printf(
+        "cahr型%d個、int型%d個、short型%d個の変数の合計バイト数は%"
+        "dバイトです。\n",
+        numc, numi, nums, sum);
 
     return 0;  // 正常終了
 }
