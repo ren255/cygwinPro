@@ -1,0 +1,34 @@
+logger/
+├── logger.hpp                    # メインインターフェース
+│   ├── enum LogLevel
+│   ├── struct LogEntry
+│   ├── class LoggerConfig
+│   ├── ColorMap (静的カラーマップ)  # ★ここに配置
+│   ├── get_logger(), get_logger_config()
+│   └── LOG_* マクロ一式
+│
+├── logger_impl.hpp               # 実装詳細
+│   ├── namespace Writers
+│   │   ├── class IWriter (interface)
+│   │   ├── class ConsoleWriter
+│   │   └── class BufferedWriter
+│   ├── namespace Utils
+│   │   ├── class ColorHelper     # ★カラー処理統合
+│   │   │   ├── parse_color_tags()
+│   │   │   ├── get_level_color()
+│   │   │   ├── apply_ansi_codes()
+│   │   │   └── strip_color_tags()
+│   │   ├── class ValidationUtils # ★検証処理統合
+│   │   │   ├── validate_color_tags_compile_time()
+│   │   │   └── validate_color_tags_runtime()
+│   │   └── class StringUtils     # ★文字列処理統合
+│   │       ├── extract_filename()
+│   │       └── safe_strcpy()
+│   └── class Logger (orchestrator)
+│
+└── formatters.hpp                # フォーマッタ関連
+    ├── namespace Formatters
+    ├── class IFormatter (interface)
+    ├── class ConsoleFormatter    # ★簡素化される
+    ├── class JsonFormatter
+    └── class PlainFormatter
