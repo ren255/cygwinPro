@@ -34,7 +34,7 @@ class Logger {
         // 実行時バリデーション
         if (!Utils::ValidationUtils::validate_color_tags_runtime(message)) {
             entry.level = LogLevel::ERROR;
-            entry.message = "Invalid color tags: check | pairing";
+            entry.message = "Invalid color tags: check || pairing";
 
             // フォーマットして出力
             char error_formatted[512];
@@ -43,7 +43,7 @@ class Logger {
                                   sizeof(error_formatted));
             } else {
                 snprintf(error_formatted, sizeof(error_formatted),
-                         "[ERROR] %s:%d : Invalid color tags: check | pairing",
+                         "[ERROR] %s:%d : Invalid color tags: check || pairing",
                          file, line);
             }
 

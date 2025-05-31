@@ -58,8 +58,8 @@ class ColorHelper {
             // カラータグ開始処理 (x|形式)
             if (color_enabled && input[in_pos] != '|' &&
                 in_pos + 1 < input_len && input[in_pos + 1] == '|') {
-                auto it = ColorMap::COLORS.find(input[in_pos]);
-                if (it != ColorMap::COLORS.end()) {
+                auto it = ColorMap::ANSI_COLORS.find(input[in_pos]);
+                if (it != ColorMap::ANSI_COLORS.end()) {
                     const char* color_code = it->second;
                     int code_len = strlen(color_code);
                     if (out_pos + code_len < max_len - 1) {
@@ -111,8 +111,8 @@ class ColorHelper {
             // カラータグ開始処理 (x|形式) - スキップ
             if (input[in_pos] != '|' && in_pos + 1 < input_len &&
                 input[in_pos + 1] == '|' &&
-                ColorMap::COLORS.find(input[in_pos]) !=
-                    ColorMap::COLORS.end()) {
+                ColorMap::ANSI_COLORS.find(input[in_pos]) !=
+                    ColorMap::ANSI_COLORS.end()) {
                 in_pos += 2;  // "x|" をスキップ
                 continue;
             }

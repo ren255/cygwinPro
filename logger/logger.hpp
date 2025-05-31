@@ -63,30 +63,28 @@ struct LogEntry {
  */
 namespace ColorMap {
 /**
- * @brief カラータグ文字とANSIコードの対応マップ
+ * @brief ANSIカラーコードマップ
  */
-static const std::map<char, const char*> COLORS = {
-    {'r', "\033[31m"},  // Red
-    {'g', "\033[32m"},  // Green
-    {'y', "\033[33m"},  // Yellow
-    {'b', "\033[34m"},  // Blue
-    {'d', "\033[0m"}    // Default/Reset
-};
+static const std::map<char, const char*> ANSI_COLORS = {{'r', "\033[31m"},
+                                                        {'g', "\033[32m"},
+                                                        {'y', "\033[33m"},
+                                                        {'b', "\033[34m"},
+                                                        {'d', "\033[0m"}};
 
 /**
  * @brief ログレベル用カラーマップ
  */
 static const std::map<LogLevel, const char*> LEVEL_COLORS = {
-    {LogLevel::DEBUG, "\033[34m"},    // Blue
-    {LogLevel::INFO, "\033[32m"},     // Green
-    {LogLevel::WARNING, "\033[33m"},  // Yellow
-    {LogLevel::ERROR, "\033[31m"}     // Red
+    {LogLevel::DEBUG, ANSI_COLORS.at('b')},    // Blue
+    {LogLevel::INFO, ANSI_COLORS.at('g')},     // Green
+    {LogLevel::WARNING, ANSI_COLORS.at('y')},  // Yellow
+    {LogLevel::ERROR, ANSI_COLORS.at('r')}     // Red
 };
 
 /**
  * @brief リセットコード
  */
-static const char* RESET = "\033[0m";
+static const char* RESET = ANSI_COLORS.at('d');
 }  // namespace ColorMap
 
 /**
@@ -111,8 +109,6 @@ class LoggerConfig {
      */
     void set_color_enabled(bool enabled) { color_enabled = enabled; }
 };
-
-
 
 #include "utils.hpp"
 #include "writers.hpp"
