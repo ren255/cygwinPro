@@ -12,6 +12,7 @@
 #include <cstring>
 #include <cstdio>
 
+
 /**
  * @brief フォーマット機能を提供する名前空間
  */
@@ -42,138 +43,6 @@ class ConsoleFormatter : public IFormatter {
    private:
     bool color_enabled;
 
-    /**
-     * @brief ログレベルに応じたカラーコードを取得
-     * @param level ログレベル
-     * @return ANSIカラーコード
-     */
-    const char* get_level_color(LogLevel level) {
-        if (!color_enabled) return "";
-
-        switch (level) {
-            case LogLevel::DEBUG:
-                return "\033[34m";  // Blue
-            case LogLevel::INFO:
-                return "\033[32m";  // Green
-            case LogLevel::WARNING:
-                return "\033[33m";  // Yellow
-            case LogLevel::ERROR:
-                return "\033[31m";  // Red
-            default:
-                return "";
-        }
-    }
-
-    /**
-     * @brief カラーリセットコードを取得
-     * @return ANSIリセットコード
-     */
-    const char* get_reset_color() { return color_enabled ? "\033[0m" : ""; }
-
-    /**
-     * @brief ログレベル文字列を取得
-     * @param level ログレベル
-     * @return レベル文字列
-     */
-    const char* get_level_string(LogLevel level) {
-        switch (level) {
-            case LogLevel::DEBUG:
-                return "DEBUG";
-            case LogLevel::INFO:
-                return "INFO";
-            case LogLevel::WARNING:
-                return "WARN";
-            case LogLevel::ERROR:
-                return "ERROR";
-            default:
-                return "UNKNOWN";
-        }
-    }
-
-    /**
-     * @brief ファイルパスからファイル名のみを抽出
-     * @param filepath フルパス
-     * @return ファイル名部分
-     */
-    const char* extract_filename(const char* filepath) {
-        const char* filename = strrchr(filepath, '/');
-        if (filename == nullptr) {
-            filename = strrchr(filepath, '\\');
-        }
-        return (filename != nullptr) ? filename + 1 : filepath;
-    }
-
-    /**
-     * @brief カラータグ付きメッセージを解析してANSIコードに変換
-     * @param input 入力メッセージ
-     * @param output 出力バッファ
-     * @param max_len 最大長
-     */
-    void parse_color_message(const char* input, char* output, int max_len) {
-        int in_pos = 0, out_pos = 0;
-        int input_len = strlen(input);
-
-        while (in_pos < input_len && out_pos < max_len - 1) {
-            // ||はエスケープされたリテラル|として処理
-            if (input[in_pos] == '|' && in_pos + 1 < input_len &&
-                input[in_pos + 1] == '|') {
-                output[out_pos++] = '|';  // リテラル|を出力
-                in_pos += 2;              // ||をスキップ
-                continue;
-            }
-
-            // カラータグ開始処理 (x|形式)
-            if (color_enabled && input[in_pos] != '|' &&
-                in_pos + 1 < input_len && input[in_pos + 1] == '|') {
-                const char* color_code = "";
-                switch (input[in_pos]) {
-                    case 'r':
-                        color_code = "\033[31m";
-                        break;  // Red
-                    case 'g':
-                        color_code = "\033[32m";
-                        break;  // Green
-                    case 'y':
-                        color_code = "\033[33m";
-                        break;  // Yellow
-                    case 'b':
-                        color_code = "\033[34m";
-                        break;  // Blue
-                    case 'd':   // default色としてリセット
-                        color_code = "\033[0m";
-                        break;
-                }
-
-                if (*color_code) {
-                    int code_len = strlen(color_code);
-                    if (out_pos + code_len < max_len - 1) {
-                        strcpy(output + out_pos, color_code);
-                        out_pos += code_len;
-                    }
-                    in_pos += 2;  // "x|" をスキップ
-                    continue;
-                }
-            }
-
-            // カラー終了タグ (単独の|)
-            if (input[in_pos] == '|') {
-                if (color_enabled) {
-                    const char* reset = "\033[0m";
-                    int reset_len = strlen(reset);
-                    if (out_pos + reset_len < max_len - 1) {
-                        strcpy(output + out_pos, reset);
-                        out_pos += reset_len;
-                    }
-                }
-                in_pos++;
-            } else {
-                // 通常文字
-                output[out_pos++] = input[in_pos++];
-            }
-        }
-        output[out_pos] = '\0';
-    }
-
    public:
     /**
      * @brief コンストラクタ
@@ -189,14 +58,19 @@ class ConsoleFormatter : public IFormatter {
      * @param max_len 最大長
      */
     void format(const LogEntry& entry, char* output, int max_len) override {
-        const char* level_str = get_level_string(entry.level);
-        const char* filename = extract_filename(entry.filename);
-        const char* color = get_level_color(entry.level);
-        const char* reset = get_reset_color();
+        // Utils::ColorHelperとUtils::StringUtilsを使用して統一処理
+        const char* level_str =
+            Utils::StringUtils::get_level_string(entry.level);
+        const char* filename =
+            Utils::StringUtils::extract_filename(entry.filename);
+        const char* color =
+            Utils::ColorHelper::get_level_color(entry.level, color_enabled);
+        const char* reset = Utils::ColorHelper::get_reset_color(color_enabled);
 
-        // カラーメッセージを解析
+        // カラーメッセージを解析（統一処理を使用）
         char colored_msg[256];
-        parse_color_message(entry.message, colored_msg, sizeof(colored_msg));
+        Utils::ColorHelper::parse_color_tags(
+            entry.message, colored_msg, sizeof(colored_msg), color_enabled);
 
         // レベル部分をパディング（8文字固定）
         char level_padded[16];
@@ -225,31 +99,21 @@ class JsonFormatter : public IFormatter {
      * @param max_len 最大長
      */
     void format(const LogEntry& entry, char* output, int max_len) override {
-        const char* level_str = "";
-        switch (entry.level) {
-            case LogLevel::DEBUG:
-                level_str = "DEBUG";
-                break;
-            case LogLevel::INFO:
-                level_str = "INFO";
-                break;
-            case LogLevel::WARNING:
-                level_str = "WARNING";
-                break;
-            case LogLevel::ERROR:
-                level_str = "ERROR";
-                break;
-        }
+        // 統一処理を使用
+        const char* level_str =
+            Utils::StringUtils::get_level_string(entry.level);
+        const char* filename =
+            Utils::StringUtils::extract_filename(entry.filename);
 
-        const char* filename = strrchr(entry.filename, '/');
-        if (filename == nullptr) {
-            filename = strrchr(entry.filename, '\\');
-        }
-        filename = (filename != nullptr) ? filename + 1 : entry.filename;
+        // JSONではカラータグを除去してクリーンなメッセージにする
+        char clean_message[256];
+        Utils::ColorHelper::strip_color_tags(entry.message, clean_message,
+                                             sizeof(clean_message));
 
+        // JSON形式でフォーマット（カラータグなし）
         snprintf(output, max_len,
                  R"({"level":"%s","file":"%s","line":%d,"message":"%s"})",
-                 level_str, filename, entry.line, entry.message);
+                 level_str, filename, entry.line, clean_message);
     }
 };
 
@@ -266,30 +130,122 @@ class PlainFormatter : public IFormatter {
      * @param max_len 最大長
      */
     void format(const LogEntry& entry, char* output, int max_len) override {
-        const char* level_str = "";
-        switch (entry.level) {
-            case LogLevel::DEBUG:
-                level_str = "DEBUG";
-                break;
-            case LogLevel::INFO:
-                level_str = "INFO";
-                break;
-            case LogLevel::WARNING:
-                level_str = "WARN";
-                break;
-            case LogLevel::ERROR:
-                level_str = "ERROR";
-                break;
-        }
+        // 統一処理を使用
+        const char* level_str =
+            Utils::StringUtils::get_level_string(entry.level);
+        const char* filename =
+            Utils::StringUtils::extract_filename(entry.filename);
 
-        const char* filename = strrchr(entry.filename, '/');
-        if (filename == nullptr) {
-            filename = strrchr(entry.filename, '\\');
-        }
-        filename = (filename != nullptr) ? filename + 1 : entry.filename;
+        // プレーンテキストではカラータグを除去
+        char plain_message[256];
+        Utils::ColorHelper::strip_color_tags(entry.message, plain_message,
+                                             sizeof(plain_message));
 
+        // シンプルなフォーマット（カラーなし）
         snprintf(output, max_len, "[%s] %s:%d : %s", level_str, filename,
-                 entry.line, entry.message);
+                 entry.line, plain_message);
+    }
+};
+
+/**
+ * @brief CSVフォーマッタ
+ * @details CSV形式でログを出力（分析用途）
+ */
+class CsvFormatter : public IFormatter {
+   public:
+    /**
+     * @brief ログエントリをCSV形式でフォーマット
+     * @param entry ログエントリ
+     * @param output 出力バッファ
+     * @param max_len 最大長
+     */
+    void format(const LogEntry& entry, char* output, int max_len) override {
+        const char* level_str =
+            Utils::StringUtils::get_level_string(entry.level);
+        const char* filename =
+            Utils::StringUtils::extract_filename(entry.filename);
+
+        // CSVではカラータグを除去し、ダブルクォートをエスケープ
+        char csv_message[256];
+        Utils::ColorHelper::strip_color_tags(entry.message, csv_message,
+                                             sizeof(csv_message));
+
+        // ダブルクォートのエスケープ処理（簡易版）
+        char escaped_message[256];
+        int in_pos = 0, out_pos = 0;
+        while (csv_message[in_pos] && out_pos < sizeof(escaped_message) - 2) {
+            if (csv_message[in_pos] == '"') {
+                escaped_message[out_pos++] = '"';
+                escaped_message[out_pos++] = '"';  // ダブルクォートをエスケープ
+            } else {
+                escaped_message[out_pos++] = csv_message[in_pos];
+            }
+            in_pos++;
+        }
+        escaped_message[out_pos] = '\0';
+
+        // CSV形式: level,file,line,message
+        snprintf(output, max_len, R"("%s","%s",%d,"%s")", level_str, filename,
+                 entry.line, escaped_message);
+    }
+};
+
+/**
+ * @brief XMLフォーマッタ
+ * @details XML形式でログを出力
+ */
+class XmlFormatter : public IFormatter {
+   public:
+    /**
+     * @brief ログエントリをXML形式でフォーマット
+     * @param entry ログエントリ
+     * @param output 出力バッファ
+     * @param max_len 最大長
+     */
+    void format(const LogEntry& entry, char* output, int max_len) override {
+        const char* level_str =
+            Utils::StringUtils::get_level_string(entry.level);
+        const char* filename =
+            Utils::StringUtils::extract_filename(entry.filename);
+
+        // XMLではカラータグを除去し、XMLエスケープ処理
+        char xml_message[256];
+        Utils::ColorHelper::strip_color_tags(entry.message, xml_message,
+                                             sizeof(xml_message));
+
+        // XMLエスケープ処理（基本的な文字のみ）
+        char escaped_message[256];
+        int in_pos = 0, out_pos = 0;
+        while (xml_message[in_pos] && out_pos < sizeof(escaped_message) - 6) {
+            switch (xml_message[in_pos]) {
+                case '<':
+                    strcpy(escaped_message + out_pos, "&lt;");
+                    out_pos += 4;
+                    break;
+                case '>':
+                    strcpy(escaped_message + out_pos, "&gt;");
+                    out_pos += 4;
+                    break;
+                case '&':
+                    strcpy(escaped_message + out_pos, "&amp;");
+                    out_pos += 5;
+                    break;
+                case '"':
+                    strcpy(escaped_message + out_pos, "&quot;");
+                    out_pos += 6;
+                    break;
+                default:
+                    escaped_message[out_pos++] = xml_message[in_pos];
+                    break;
+            }
+            in_pos++;
+        }
+        escaped_message[out_pos] = '\0';
+
+        // XML形式
+        snprintf(output, max_len,
+                 R"(<log level="%s" file="%s" line="%d">%s</log>)", level_str,
+                 filename, entry.line, escaped_message);
     }
 };
 

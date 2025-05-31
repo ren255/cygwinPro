@@ -1,5 +1,5 @@
 #include "utils.h"
-#include "logger.hpp"
+#include "logger/logger.hpp"
 
 // サンプル関数群
 void test_basic_logging() {

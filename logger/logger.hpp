@@ -10,7 +10,13 @@
 #ifndef LOGGER_HPP
 #define LOGGER_HPP
 
-// 前方宣言
+#include <cstdarg>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
+#include <memory>
+#include <map>
+
 class Logger;
 class LoggerConfig;
 
@@ -52,6 +58,38 @@ struct LogEntry {
 };
 
 /**
+ * @brief カラーコードマップ
+ * @details カラータグとANSIコードの対応表（一元管理）
+ */
+namespace ColorMap {
+/**
+ * @brief カラータグ文字とANSIコードの対応マップ
+ */
+static const std::map<char, const char*> COLORS = {
+    {'r', "\033[31m"},  // Red
+    {'g', "\033[32m"},  // Green
+    {'y', "\033[33m"},  // Yellow
+    {'b', "\033[34m"},  // Blue
+    {'d', "\033[0m"}    // Default/Reset
+};
+
+/**
+ * @brief ログレベル用カラーマップ
+ */
+static const std::map<LogLevel, const char*> LEVEL_COLORS = {
+    {LogLevel::DEBUG, "\033[34m"},    // Blue
+    {LogLevel::INFO, "\033[32m"},     // Green
+    {LogLevel::WARNING, "\033[33m"},  // Yellow
+    {LogLevel::ERROR, "\033[31m"}     // Red
+};
+
+/**
+ * @brief リセットコード
+ */
+static const char* RESET = "\033[0m";
+}  // namespace ColorMap
+
+/**
  * @brief ロガー設定クラス
  * @details ログ出力の動作を制御する設定を管理
  */
@@ -74,21 +112,24 @@ class LoggerConfig {
     void set_color_enabled(bool enabled) { color_enabled = enabled; }
 };
 
-// コンパイル時バリデーション用の前方宣言
-namespace Utils {
-constexpr bool validate_color_tags_compile_time(const char* input);
-}
+
+
+#include "utils.hpp"
+#include "writers.hpp"
+#include "formatters.hpp"
+#include "core.hpp"
 
 /**
  * @brief DEBUGログ出力マクロ（カラータグ検証付き）
  * @param fmt フォーマット文字列
  * @param ... 可変引数
  */
-#define LOG_DEBUG(fmt, ...)                                         \
-    do {                                                            \
-        static_assert(Utils::validate_color_tags_compile_time(fmt), \
-                      "Invalid color tags: check | pairing");       \
-        get_logger().debug(__FILE__, __LINE__, fmt, ##__VA_ARGS__); \
+#define LOG_DEBUG(fmt, ...)                                                \
+    do {                                                                   \
+        static_assert(                                                     \
+            Utils::ValidationUtils::validate_color_tags_compile_time(fmt), \
+            "Invalid color tags: check | pairing");                        \
+        get_logger().debug(__FILE__, __LINE__, fmt, ##__VA_ARGS__);        \
     } while (0)
 
 /**
@@ -96,11 +137,12 @@ constexpr bool validate_color_tags_compile_time(const char* input);
  * @param fmt フォーマット文字列
  * @param ... 可変引数
  */
-#define LOG_INFO(fmt, ...)                                          \
-    do {                                                            \
-        static_assert(Utils::validate_color_tags_compile_time(fmt), \
-                      "Invalid color tags: check | pairing");       \
-        get_logger().info(__FILE__, __LINE__, fmt, ##__VA_ARGS__);  \
+#define LOG_INFO(fmt, ...)                                                 \
+    do {                                                                   \
+        static_assert(                                                     \
+            Utils::ValidationUtils::validate_color_tags_compile_time(fmt), \
+            "Invalid color tags: check | pairing");                        \
+        get_logger().info(__FILE__, __LINE__, fmt, ##__VA_ARGS__);         \
     } while (0)
 
 /**
@@ -108,11 +150,12 @@ constexpr bool validate_color_tags_compile_time(const char* input);
  * @param fmt フォーマット文字列
  * @param ... 可変引数
  */
-#define LOG_WARNING(fmt, ...)                                         \
-    do {                                                              \
-        static_assert(Utils::validate_color_tags_compile_time(fmt),   \
-                      "Invalid color tags: check | pairing");         \
-        get_logger().warning(__FILE__, __LINE__, fmt, ##__VA_ARGS__); \
+#define LOG_WARNING(fmt, ...)                                              \
+    do {                                                                   \
+        static_assert(                                                     \
+            Utils::ValidationUtils::validate_color_tags_compile_time(fmt), \
+            "Invalid color tags: check | pairing");                        \
+        get_logger().warning(__FILE__, __LINE__, fmt, ##__VA_ARGS__);      \
     } while (0)
 
 /**
@@ -120,14 +163,12 @@ constexpr bool validate_color_tags_compile_time(const char* input);
  * @param fmt フォーマット文字列
  * @param ... 可変引数
  */
-#define LOG_ERROR(fmt, ...)                                         \
-    do {                                                            \
-        static_assert(Utils::validate_color_tags_compile_time(fmt), \
-                      "Invalid color tags: check | pairing");       \
-        get_logger().error(__FILE__, __LINE__, fmt, ##__VA_ARGS__); \
+#define LOG_ERROR(fmt, ...)                                                \
+    do {                                                                   \
+        static_assert(                                                     \
+            Utils::ValidationUtils::validate_color_tags_compile_time(fmt), \
+            "Invalid color tags: check | pairing");                        \
+        get_logger().error(__FILE__, __LINE__, fmt, ##__VA_ARGS__);        \
     } while (0)
-
-// 実装ファイルをインクルード
-#include "logger_impl.hpp"
 
 #endif  // LOGGER_HPP
