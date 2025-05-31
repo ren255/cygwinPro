@@ -1,10 +1,9 @@
 #ifndef LOG_WRITERS_HPP
 #define LOG_WRITERS_HPP
 
-
 #include <cstdio>
 
-
+namespace logger {
 /**
  * @brief 出力機能を提供する名前空間
  */
@@ -100,5 +99,6 @@ class BufferedWriter : public IWriter {
 };
 
 }  // namespace Writers
+}  // namespace logger
 
 #endif  // LOG_WRITERS_HPP

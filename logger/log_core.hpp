@@ -1,6 +1,6 @@
 #ifndef LOG_CORE_HPP
 #define LOG_CORE_HPP
-
+namespace logger {
 /**
  * @brief メインLoggerクラス
  * @details ログ出力の統括管理を行うオーケストレータ
@@ -179,5 +179,5 @@ class Logger {
     }
 };
 
-
+}  // namespace logger
 #endif  // LOG_CORE_HPP

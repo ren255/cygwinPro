@@ -1,6 +1,7 @@
 #ifndef LOG_UTILS_HPP
 #define LOG_UTILS_HPP
 
+namespace logger {
 /**
  * @brief ユーティリティ機能を提供する名前空間
  */
@@ -244,4 +245,6 @@ class StringUtils {
     }
 };
 }  // namespace Utils
+}  // namespace logger
+
 #endif  // LOG_UTILS_HPP

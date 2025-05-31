@@ -1,22 +1,25 @@
 #ifndef LOG_TYPE_HPP
 #define LOG_TYPE_HPP
 
-class Logger;
-class LoggerConfig;
+
+namespace logger {
+    class Logger;
+    class LoggerConfig;
+}  // namespace logger
 
 /**
  * @brief グローバルLoggerインスタンスを取得
  * @details シングルトンパターンでLoggerインスタンスを提供
  * @return Loggerインスタンスへの参照
  */
-Logger& get_logger();
-
+logger::Logger& get_logger();
 /**
  * @brief ロガー設定を取得
  * @return LoggerConfigインスタンスへの参照
  */
-LoggerConfig& get_logger_config();
+logger::LoggerConfig& get_logger_config();
 
+namespace logger {
 /**
  * @brief ログレベル列挙型
  * @details ログメッセージの重要度を定義
@@ -93,5 +96,6 @@ class LoggerConfig {
      */
     void set_color_enabled(bool enabled) { color_enabled = enabled; }
 };
+}  // namespace logger
 
-#endif // LOG_TYPE_HPP
+#endif  // LOG_TYPE_HPP

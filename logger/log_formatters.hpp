@@ -12,7 +12,7 @@
 #include <cstring>
 #include <cstdio>
 
-
+namespace logger {
 /**
  * @brief フォーマット機能を提供する名前空間
  */
@@ -250,5 +250,5 @@ class XmlFormatter : public IFormatter {
 };
 
 }  // namespace Formatters
-
+}  // namespace logger
 #endif  // LOG_FORMATTERS_HPP
