@@ -5,8 +5,8 @@
  * @author ren255
  */
 
-#ifndef FORMATTERS_HPP
-#define FORMATTERS_HPP
+#ifndef LOG_FORMATTERS_HPP
+#define LOG_FORMATTERS_HPP
 
 #include "logger.hpp"
 #include <cstring>
@@ -251,4 +251,4 @@ class XmlFormatter : public IFormatter {
 
 }  // namespace Formatters
 
-#endif  // FORMATTERS_HPP
+#endif  // LOG_FORMATTERS_HPP

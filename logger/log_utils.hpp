@@ -1,5 +1,5 @@
-#ifndef UTILS_HPP
-#define UTILS_HPP
+#ifndef LOG_UTILS_HPP
+#define LOG_UTILS_HPP
 
 /**
  * @brief ユーティリティ機能を提供する名前空間
@@ -244,4 +244,4 @@ class StringUtils {
     }
 };
 }  // namespace Utils
-#endif  // UTILS_HPP
+#endif  // LOG_UTILS_HPP

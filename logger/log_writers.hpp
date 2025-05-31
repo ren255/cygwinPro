@@ -1,5 +1,5 @@
-#ifndef WRITERS_HPP
-#define WRITERS_HPP
+#ifndef LOG_WRITERS_HPP
+#define LOG_WRITERS_HPP
 
 
 #include <cstdio>
@@ -101,4 +101,4 @@ class BufferedWriter : public IWriter {
 
 }  // namespace Writers
 
-#endif  // WRITERS_HPP
+#endif  // LOG_WRITERS_HPP

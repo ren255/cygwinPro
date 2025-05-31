@@ -1,5 +1,5 @@
-#ifndef CORE_HPP
-#define CORE_HPP
+#ifndef LOG_CORE_HPP
+#define LOG_CORE_HPP
 
 /**
  * @brief メインLoggerクラス
@@ -179,24 +179,5 @@ class Logger {
     }
 };
 
-// グローバル関数の実装
 
-/**
- * @brief グローバルLoggerインスタンスを取得
- * @return Loggerインスタンスへの参照
- */
-Logger& get_logger() {
-    static Logger instance;
-    return instance;
-}
-
-/**
- * @brief グローバルロガー設定を取得
- * @return LoggerConfigインスタンスへの参照
- */
-LoggerConfig& get_logger_config() {
-    static LoggerConfig config;
-    return config;
-}
-
-#endif  // CORE_HPP
+#endif  // LOG_CORE_HPP
