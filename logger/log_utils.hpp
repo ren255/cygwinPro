@@ -143,7 +143,7 @@ class ValidationUtils {
      * @details
      * |が偶数個であること、連続していないことを検証（||はエスケープとして扱う）
      */
-    static constexpr bool validate_color_tags_compile_time(const char* input) {
+    static constexpr bool check_colors_ct(const char* input) {
         int pipe_count = 0;
         int input_len = 0;
 

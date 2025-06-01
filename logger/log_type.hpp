@@ -19,7 +19,6 @@ logger::Logger& get_logger();
  */
 logger::LoggerConfig& get_logger_config();
 
-namespace logger {
 /**
  * @brief ログレベル列挙型
  * @details ログメッセージの重要度を定義
@@ -31,6 +30,7 @@ enum class LogLevel {
     ERROR     ///< エラーレベル - エラー情報
 };
 
+namespace logger {
 /**
  * @brief ログエントリ構造体
  * @details 単一のログメッセージに関する全情報を格納

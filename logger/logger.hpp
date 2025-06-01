@@ -29,8 +29,8 @@
  * @brief グローバルLoggerインスタンスを取得
  * @return Loggerインスタンスへの参照
  */
-Logger::Logger& get_logger() {
-    static Logger instance;
+logger::Logger& get_logger() {
+    static logger::Logger instance;
     return instance;
 }
 
@@ -38,8 +38,8 @@ Logger::Logger& get_logger() {
  * @brief グローバルロガー設定を取得
  * @return LoggerConfigインスタンスへの参照
  */
-Logger::LoggerConfig& get_logger_config() {
-    static LoggerConfig config;
+logger::LoggerConfig& get_logger_config() {
+    static logger::LoggerConfig config;
     return config;
 }
 
@@ -48,13 +48,11 @@ Logger::LoggerConfig& get_logger_config() {
  * @param fmt フォーマット文字列
  * @param ... 可変引数
  */
-#define LOG_DEBUG(fmt, ...)                                                   \
-    do {                                                                      \
-        static_assert(                                                        \
-            Logger::Utils::ValidationUtils::validate_color_tags_compile_time( \
-                fmt),                                                         \
-            "Invalid color tags: check | pairing");                           \
-        get_logger().debug(__FILE__, __LINE__, fmt, ##__VA_ARGS__);           \
+#define LOG_DEBUG(fmt, ...)                                                 \
+    do {                                                                    \
+        static_assert(logger::Utils::ValidationUtils::check_colors_ct(fmt), \
+                      "Invalid color tags: check | pairing");               \
+        get_logger().debug(__FILE__, __LINE__, fmt, ##__VA_ARGS__);         \
     } while (0)
 
 /**
@@ -62,13 +60,11 @@ Logger::LoggerConfig& get_logger_config() {
  * @param fmt フォーマット文字列
  * @param ... 可変引数
  */
-#define LOG_INFO(fmt, ...)                                                    \
-    do {                                                                      \
-        static_assert(                                                        \
-            Logger::Utils::ValidationUtils::validate_color_tags_compile_time( \
-                fmt),                                                         \
-            "Invalid color tags: check | pairing");                           \
-        get_logger().info(__FILE__, __LINE__, fmt, ##__VA_ARGS__);            \
+#define LOG_INFO(fmt, ...)                                                  \
+    do {                                                                    \
+        static_assert(logger::Utils::ValidationUtils::check_colors_ct(fmt), \
+                      "Invalid color tags: check | pairing");               \
+        get_logger().info(__FILE__, __LINE__, fmt, ##__VA_ARGS__);          \
     } while (0)
 
 /**
@@ -76,13 +72,11 @@ Logger::LoggerConfig& get_logger_config() {
  * @param fmt フォーマット文字列
  * @param ... 可変引数
  */
-#define LOG_WARNING(fmt, ...)                                                 \
-    do {                                                                      \
-        static_assert(                                                        \
-            Logger::Utils::ValidationUtils::validate_color_tags_compile_time( \
-                fmt),                                                         \
-            "Invalid color tags: check | pairing");                           \
-        get_logger().warning(__FILE__, __LINE__, fmt, ##__VA_ARGS__);         \
+#define LOG_WARNING(fmt, ...)                                               \
+    do {                                                                    \
+        static_assert(logger::Utils::ValidationUtils::check_colors_ct(fmt), \
+                      "Invalid color tags: check | pairing");               \
+        get_logger().warning(__FILE__, __LINE__, fmt, ##__VA_ARGS__);       \
     } while (0)
 
 /**
@@ -90,13 +84,11 @@ Logger::LoggerConfig& get_logger_config() {
  * @param fmt フォーマット文字列
  * @param ... 可変引数
  */
-#define LOG_ERROR(fmt, ...)                                                   \
-    do {                                                                      \
-        static_assert(                                                        \
-            Logger::Utils::ValidationUtils::validate_color_tags_compile_time( \
-                fmt),                                                         \
-            "Invalid color tags: check | pairing");                           \
-        get_logger().error(__FILE__, __LINE__, fmt, ##__VA_ARGS__);           \
+#define LOG_ERROR(fmt, ...)                                                 \
+    do {                                                                    \
+        static_assert(logger::Utils::ValidationUtils::check_colors_ct(fmt), \
+                      "Invalid color tags: check | pairing");               \
+        get_logger().error(__FILE__, __LINE__, fmt, ##__VA_ARGS__);         \
     } while (0)
 
 #endif  // LOGGER_HPP
