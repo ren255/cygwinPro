@@ -1,34 +1,310 @@
-logger/
-├── logger.hpp                    # メインインターフェース
-│   ├── enum LogLevel
-│   ├── struct LogEntry
-│   ├── class LoggerConfig
-│   ├── ColorMap (静的カラーマップ)  # ★ここに配置
-│   ├── get_logger(), get_logger_config()
-│   └── LOG_* マクロ一式
-│
-├── logger_impl.hpp               # 実装詳細
-│   ├── namespace Writers
-│   │   ├── class IWriter (interface)
-│   │   ├── class ConsoleWriter
-│   │   └── class BufferedWriter
-│   ├── namespace Utils
-│   │   ├── class ColorHelper     # ★カラー処理統合
-│   │   │   ├── parse_color_tags()
-│   │   │   ├── get_level_color()
-│   │   │   ├── apply_ansi_codes()
-│   │   │   └── strip_color_tags()
-│   │   ├── class ValidationUtils # ★検証処理統合
-│   │   │   ├── validate_color_tags_compile_time()
-│   │   │   └── validate_color_tags_runtime()
-│   │   └── class StringUtils     # ★文字列処理統合
-│   │       ├── extract_filename()
-│   │       └── safe_strcpy()
-│   └── class Logger (orchestrator)
-│
-└── formatters.hpp                # フォーマッタ関連
-    ├── namespace Formatters
-    ├── class IFormatter (interface)
-    ├── class ConsoleFormatter    # ★簡素化される
-    ├── class JsonFormatter
-    └── class PlainFormatter
+# Logger Library CST (Code Structure Tree)
+
+```
+Logger Library/
+├── logger.hpp                          # メインAPI
+│   ├── include dependencies            # 全ヘッダー統合
+│   ├── get_logger()                    # グローバル取得
+│   ├── get_logger_config()             # 設定取得
+│   ├── LOG_DEBUG(fmt, ...)             # DEBUGマクロ
+│   ├── LOG_INFO(fmt, ...)              # INFOマクロ
+│   ├── LOG_WARNING(fmt, ...)           # WARNマクロ
+│   └── LOG_ERROR(fmt, ...)             # ERRORマクロ
+├── log_type.hpp                        # 型定義
+│   ├── enum LogLevel                   # ログレベル
+│   │   ├── DEBUG
+│   │   ├── INFO
+│   │   ├── WARNING
+│   │   └── ERROR
+│   ├── namespace logger                # メイン名前空間
+│   │   ├── struct LogEntry             # ログエントリ
+│   │   │   ├── level
+│   │   │   ├── filename
+│   │   │   ├── line
+│   │   │   ├── function
+│   │   │   └── message
+│   │   ├── namespace ColorMap          # カラーマップ
+│   │   │   ├── ANSI_COLORS
+│   │   │   ├── LEVEL_COLORS
+│   │   │   └── RESET
+│   │   └── class LoggerConfig          # 設定クラス
+│   │       ├── min_level               # 最小レベル
+│   │       ├── color_enabled           # カラー有効
+│   │       ├── show_timestamp          # 時刻表示
+│   │       ├── set_min_level()         # レベル設定
+│   │       └── set_color_enabled()     # カラー設定
+│   ├── get_logger()                    # グローバル宣言
+│   └── get_logger_config()             # 設定宣言
+├── log_core.hpp                        # コア実装
+│   └── namespace logger
+│       └── class Logger                # メインクラス
+│           ├── current_level           # 現在レベル
+│           ├── formatter               # フォーマッタ
+│           ├── writer                  # ライター
+│           ├── log_internal()          # 内部処理
+│           │   ├── level check         
+│           │   ├── validate tags       
+│           │   ├── format message      
+│           │   └── write output        
+│           ├── Logger()                # コンストラクタ
+│           ├── set_level()             # レベル設定
+│           ├── get_level()             # レベル取得
+│           ├── set_formatter()         # フォーマッタ設定
+│           ├── set_writer()            # ライター設定
+│           ├── debug()                 
+│           ├── info()                  
+│           ├── warning()               
+│           └── error()                 
+├── log_utils.hpp                       # ユーティリティ
+│   └── namespace logger
+│       └── namespace Utils             # ユーティリティ群
+│           ├── class ColorHelper       # カラー処理
+│           │   ├── get_level_color()   # レベル色取得
+│           │   ├── get_reset_color()   # リセット色取得
+│           │   ├── parse_color_tags()  # タグ解析
+│           │   └── strip_color_tags()  # タグ除去
+│           ├── class ValidationUtils   # 検証処理
+│           │   ├── check_colors_ct()   # コンパイル時検証
+│           │   └── validate_color_tags_runtime() # 実行時検証
+│           └── class StringUtils       # 文字列処理
+│               ├── extract_filename()  # ファイル名抽出
+│               ├── get_level_string()  # レベル文字列
+│               └── safe_strcpy()       # 安全コピー
+├── log_formatters.hpp                  # フォーマッタ
+│   └── namespace logger
+│       └── namespace Formatters        # フォーマッタ群
+│           ├── class IFormatter        # 基底インターフェース
+│           │   └── format()            # 仮想メソッド
+│           ├── class ConsoleFormatter  # コンソール用
+│           │   ├── color_enabled       # カラー有効
+│           │   ├── ConsoleFormatter()  # コンストラクタ
+│           │   └── format()
+│           ├── class JsonFormatter     # JSON用
+│           │   └── format()
+│           ├── class PlainFormatter    # プレーン用
+│           │   └── format()
+│           ├── class CsvFormatter      # CSV用
+│           │   └── format()
+│           └── class XmlFormatter      # XML用
+│               └── format()
+└── log_writers.hpp                     # 出力ライター
+    └── namespace logger
+        └── namespace Writers           # ライター群
+            ├── class IWriter           # 基底インターフェース
+            │   └── write()             # 仮想メソッド
+            ├── class ConsoleWriter     # コンソール出力
+            │   └── write()
+            └── class BufferedWriter    # バッファ出力
+                ├── BUFFER_SIZE         # バッファサイズ
+                ├── buffer              # バッファ領域
+                ├── buffer_pos          # バッファ位置
+                ├── underlying_writer   # 実際のライター
+                ├── BufferedWriter()    # コンストラクタ
+                ├── write()             # バッファ書込
+                ├── flush()             # バッファフラッシュ
+                └── ~BufferedWriter()   # デストラクタ
+```
+
+
+# Logger Library - Usage Documentation
+
+## 1. 基本使用法
+
+### インクルード
+```cpp
+#include "logger.hpp"
+```
+
+### 基本的なログ出力
+```cpp
+// 基本的な使用方法
+LOG_INFO("アプリケーションが開始されました");
+LOG_DEBUG("変数の値: %d", variable);
+LOG_WARNING("メモリ使用量が多くなっています: %d%%", usage);
+LOG_ERROR("ファイルの読み込みに失敗: %s", filename);
+```
+
+## 2. ログレベル設定
+
+### レベル変更
+```cpp
+// DEBUGレベル以上を出力
+get_logger().set_level(LogLevel::DEBUG);
+
+// WARNINGレベル以上のみ出力
+get_logger().set_level(LogLevel::WARNING);
+```
+
+### レベル階層
+```
+DEBUG < INFO < WARNING < ERROR
+```
+
+## 3. カラー出力機能
+
+### カラータグの使用
+```cpp
+LOG_INFO("r|エラー|が発生しました");           // 赤色
+LOG_INFO("g|処理が成功|しました");             // 緑色  
+LOG_INFO("y|警告|: 設定を確認してください");    // 黄色
+LOG_INFO("b|デバッグ情報|: %s", debug_info);   // 青色
+```
+
+### カラータグ一覧
+| タグ | 色   | 使用例 |
+|------|------|--------|
+| `r|` | 赤   | `LOG_ERROR("r|致命的エラー|")` |
+| `g|` | 緑   | `LOG_INFO("g|成功|")` |
+| `y|` | 黄   | `LOG_WARNING("y|注意|")` |
+| `b|` | 青   | `LOG_DEBUG("b|詳細|")` |
+
+### リテラル`|`の出力
+```cpp
+LOG_INFO("パイプ文字||を出力");  // "パイプ文字|を出力"と表示
+```
+
+## 4. フォーマッタの切り替え
+
+### コンソール用（デフォルト）
+```cpp
+get_logger().set_formatter(
+    std::make_unique<logger::Formatters::ConsoleFormatter>(true)
+);
+```
+
+### JSON形式
+```cpp
+get_logger().set_formatter(
+    std::make_unique<logger::Formatters::JsonFormatter>()
+);
+// 出力例: {"level":"INFO","file":"main.cpp","line":42,"message":"test"}
+```
+
+### プレーンテキスト
+```cpp
+get_logger().set_formatter(
+    std::make_unique<logger::Formatters::PlainFormatter>()
+);
+// 出力例: [INFO] main.cpp:42 : test message
+```
+
+### CSV形式
+```cpp
+get_logger().set_formatter(
+    std::make_unique<logger::Formatters::CsvFormatter>()
+);
+// 出力例: "INFO","main.cpp",42,"test message"
+```
+
+### XML形式
+```cpp
+get_logger().set_formatter(
+    std::make_unique<logger::Formatters::XmlFormatter>()
+);
+// 出力例: <log level="INFO" file="main.cpp" line="42">test message</log>
+```
+
+## 5. 出力先の設定
+
+### コンソール出力（デフォルト）
+```cpp
+get_logger().set_writer(
+    std::make_unique<logger::Writers::ConsoleWriter>()
+);
+```
+
+### バッファ付き出力
+```cpp
+auto console_writer = std::make_unique<logger::Writers::ConsoleWriter>();
+get_logger().set_writer(
+    std::make_unique<logger::Writers::BufferedWriter>(std::move(console_writer))
+);
+```
+
+## 6. 設定の組み合わせ例
+
+### 開発時設定
+```cpp
+void setup_development_logging() {
+    get_logger().set_level(LogLevel::DEBUG);
+    get_logger().set_formatter(
+        std::make_unique<logger::Formatters::ConsoleFormatter>(true)
+    );
+}
+```
+
+### 本番環境設定
+```cpp
+void setup_production_logging() {
+    get_logger().set_level(LogLevel::WARNING);
+    get_logger().set_formatter(
+        std::make_unique<logger::Formatters::JsonFormatter>()
+    );
+}
+```
+
+### ログ解析用設定
+```cpp
+void setup_analysis_logging() {
+    get_logger().set_level(LogLevel::INFO);
+    get_logger().set_formatter(
+        std::make_unique<logger::Formatters::CsvFormatter>()
+    );
+}
+```
+
+## 7. 実用的な使用例
+
+### エラーハンドリング
+```cpp
+if (file.open(filename)) {
+    LOG_INFO("g|ファイルオープン成功|: %s", filename);
+} else {
+    LOG_ERROR("r|ファイルオープン失敗|: %s", filename);
+    return false;
+}
+```
+
+### デバッグ情報
+```cpp
+void process_data(const std::vector<int>& data) {
+    LOG_DEBUG("b|処理開始|: データ数=%zu", data.size());
+    
+    for (size_t i = 0; i < data.size(); ++i) {
+        LOG_DEBUG("処理中[%zu]: 値=%d", i, data[i]);
+    }
+    
+    LOG_INFO("g|処理完了|");
+}
+```
+
+### パフォーマンス監視
+```cpp
+auto start = std::chrono::high_resolution_clock::now();
+// 何らかの処理
+auto end = std::chrono::high_resolution_clock::now();
+auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
+if (duration.count() > 1000) {
+    LOG_WARNING("y|処理時間が長い|: %ldms", duration.count());
+} else {
+    LOG_INFO("処理時間: %ldms", duration.count());
+}
+```
+
+## 8. 注意事項
+
+### カラータグの制約
+- カラータグは必ずペアで使用する（`r|text|`）
+- 不正なタグはコンパイル時エラーになる
+- 実行時にも検証され、不正な場合はエラーメッセージが出力される
+
+### パフォーマンス考慮
+- DEBUGレベルは本番環境では無効にする
+- バッファ付きライターを使用して出力効率を向上
+- フォーマット文字列は静的に検証される
+
+### メモリ使用量
+- メッセージバッファは固定サイズ（256/512バイト）
+- 長いメッセージは切り詰められる
+- フォーマッタとライターはunique_ptrで管理される

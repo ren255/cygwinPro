@@ -26,21 +26,20 @@
 // グローバル関数の実装
 
 /**
- * @brief グローバルLoggerインスタンスを取得
- * @return Loggerインスタンスへの参照
+ * @brief デフォルトLogger取得（コンソール出力）
+ * @return デフォルト設定のLoggerインスタンス
  */
 logger::Logger& get_logger() {
-    static logger::Logger instance;
-    return instance;
-}
+    static std::once_flag flag;
+    static std::unique_ptr<Logger> instance;
 
-/**
- * @brief グローバルロガー設定を取得
- * @return LoggerConfigインスタンスへの参照
- */
-logger::LoggerConfig& get_logger_config() {
-    static logger::LoggerConfig config;
-    return config;
+    std::call_once(flag, []() {
+        instance = std::make_unique<Logger>(
+            std::make_unique<Formatters::ConsoleFormatter>(true),
+            std::make_unique<Writers::ConsoleWriter>());
+    });
+
+    return *instance;
 }
 
 /**

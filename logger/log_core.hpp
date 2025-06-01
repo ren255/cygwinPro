@@ -74,13 +74,15 @@ class Logger {
 
    public:
     /**
-     * @brief デフォルトコンストラクタ
+     * @brief パラメータ付きコンストラクタ
+     * @param fmt フォーマッタのユニークポインタ
+     * @param wrt ライターのユニークポインタ
      */
-    Logger() : current_level(LogLevel::INFO) {
-        // デフォルトの設定
-        formatter = std::make_unique<Formatters::ConsoleFormatter>(true);
-        writer = std::make_unique<Writers::ConsoleWriter>();
-    }
+    Logger(std::unique_ptr<Formatters::IFormatter> fmt,
+           std::unique_ptr<Writers::IWriter> wrt)
+        : current_level(LogLevel::INFO),
+          formatter(std::move(fmt)),
+          writer(std::move(wrt)) {}
 
     /**
      * @brief 最小ログレベルを設定
@@ -93,22 +95,6 @@ class Logger {
      * @return 現在のログレベル
      */
     LogLevel get_level() const { return current_level; }
-
-    /**
-     * @brief フォーマッタを設定
-     * @param new_formatter 新しいフォーマッタ
-     */
-    void set_formatter(std::unique_ptr<Formatters::IFormatter> new_formatter) {
-        formatter = std::move(new_formatter);
-    }
-
-    /**
-     * @brief ライターを設定
-     * @param new_writer 新しいライター
-     */
-    void set_writer(std::unique_ptr<Writers::IWriter> new_writer) {
-        writer = std::move(new_writer);
-    }
 
     /**
      * @brief DEBUGレベルログを出力

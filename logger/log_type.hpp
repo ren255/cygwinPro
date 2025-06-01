@@ -1,10 +1,9 @@
 #ifndef LOG_TYPE_HPP
 #define LOG_TYPE_HPP
 
-
 namespace logger {
-    class Logger;
-    class LoggerConfig;
+class Logger;
+class LoggerConfig;
 }  // namespace logger
 
 /**
@@ -74,28 +73,6 @@ static const std::map<LogLevel, const char*> LEVEL_COLORS = {
 static const char* RESET = ANSI_COLORS.at('d');
 }  // namespace ColorMap
 
-/**
- * @brief ロガー設定クラス
- * @details ログ出力の動作を制御する設定を管理
- */
-class LoggerConfig {
-   public:
-    LogLevel min_level = LogLevel::INFO;  ///< 最小出力レベル
-    bool color_enabled = true;            ///< カラー出力の有効/無効
-    bool show_timestamp = false;          ///< タイムスタンプ表示（将来実装）
-
-    /**
-     * @brief 最小ログレベルを設定
-     * @param level 設定するログレベル
-     */
-    void set_min_level(LogLevel level) { min_level = level; }
-
-    /**
-     * @brief カラー出力の有効/無効を設定
-     * @param enabled カラー出力を有効にするかどうか
-     */
-    void set_color_enabled(bool enabled) { color_enabled = enabled; }
-};
 }  // namespace logger
 
 #endif  // LOG_TYPE_HPP

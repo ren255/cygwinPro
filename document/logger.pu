@@ -1,0 +1,192 @@
+@startuml Logger Library Class Diagram
+
+' 色分け設定
+skinparam classBackgroundColor<<interface>> skyblue
+skinparam classBackgroundColor<<abstract>> lightyellow
+skinparam classBackgroundColor<<enum>> lightgreen
+skinparam classBackgroundColor<<macro>> lightcoral
+
+!theme plain
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam classFontSize 10
+skinparam packageFontSize 12
+skinparam linetype ortho
+
+' Main Logger Package
+package "logger" {
+    class Logger {
+        -LogLevel current_level
+        -unique_ptr<IFormatter> formatter
+        -unique_ptr<IWriter> writer
+        -log_internal(LogLevel level, const char* file, int line, const char* message)
+        +Logger()
+        +set_level(LogLevel level)
+        +get_level() : LogLevel
+        +set_formatter(unique_ptr<IFormatter> formatter)
+        +set_writer(unique_ptr<IWriter> writer)
+        +debug(const char* file, int line, const char* fmt, ...)
+        +info(const char* file, int line, const char* fmt, ...)
+        +warning(const char* file, int line, const char* fmt, ...)
+        +error(const char* file, int line, const char* fmt, ...)
+    }
+
+    class LoggerConfig {
+        +LogLevel min_level
+        +bool color_enabled
+        +bool show_timestamp
+        +set_min_level(LogLevel level)
+        +set_color_enabled(bool enabled)
+    }
+
+    package "ColorMap" {
+        class ColorMapData <<utility>> {
+            +{static} ANSI_COLORS : map<char, const char*>
+            +{static} LEVEL_COLORS : map<LogLevel, const char*>
+            +{static} RESET : const char*
+        }
+    }
+}
+
+' Formatters Package
+package "logger::Formatters" {
+    interface IFormatter <<interface>> {
+        +{abstract} format(const LogEntry& entry, char* output, int max_len)
+    }
+
+    class ConsoleFormatter {
+        -bool color_enabled
+        +ConsoleFormatter(bool enable_color)
+        +format(const LogEntry& entry, char* output, int max_len)
+    }
+
+    class PlainFormatter {
+        +format(const LogEntry& entry, char* output, int max_len)
+    }
+    ' 以下のクラスはコメントアウト
+    ' class JsonFormatter {
+    '     +format(const LogEntry& entry, char* output, int max_len)
+    ' }
+    ' class CsvFormatter {
+    '     +format(const LogEntry& entry, char* output, int max_len)
+    ' }
+    ' class XmlFormatter {
+    '     +format(const LogEntry& entry, char* output, int max_len)
+    ' }
+}
+
+' Writers Package
+package "logger::Writers" {
+    interface IWriter <<interface>> {
+        +{abstract} write(const char* message)
+    }
+
+    class ConsoleWriter {
+        +write(const char* message)
+    }
+
+    class BufferedWriter {
+        -{static} BUFFER_SIZE : int
+        -buffer : char[BUFFER_SIZE]
+        -buffer_pos : int
+        -underlying_writer : unique_ptr<IWriter>
+        +BufferedWriter(unique_ptr<IWriter> writer)
+        +write(const char* message)
+        +flush()
+        +~BufferedWriter()
+    }
+}
+
+' Utils Package
+package "logger::Utils" {
+    class ColorHelper <<utility>> {
+        +{static} get_level_color(LogLevel level, bool color_enabled) : const char*
+        +{static} get_reset_color(bool color_enabled) : const char*
+        +{static} parse_color_tags(const char* input, char* output, int max_len, bool color_enabled)
+        +{static} strip_color_tags(const char* input, char* output, int max_len)
+    }
+
+    class ValidationUtils <<utility>> {
+        +{static} check_colors_ct(const char* input) : constexpr bool
+        +{static} validate_color_tags_runtime(const char* input) : bool
+    }
+
+    class StringUtils <<utility>> {
+        +{static} extract_filename(const char* filepath) : const char*
+        +{static} get_level_string(LogLevel level) : const char*
+        +{static} safe_strcpy(char* dest, const char* src, int max_len)
+    }
+}
+
+' Core Types Package
+package "Core Types" {
+    enum LogLevel <<enum>> {
+        DEBUG
+        INFO
+        WARNING
+        ERROR
+    }
+
+    class LogEntry {
+        +LogLevel level
+        +const char* filename
+        +int line
+        +const char* function
+        +const char* message
+    }
+}
+
+' Global API Package - Updated
+package "Global API" {
+    class GlobalFunctions <<utility>> {
+        +{static} get_logger() : Logger&
+        +{static} get_logger_config() : LoggerConfig&
+        +{note} Returns static instances
+    }
+
+    class LogMacros <<macro>> {
+        +LOG_DEBUG(fmt, ...)
+        +LOG_INFO(fmt, ...)
+        +LOG_WARNING(fmt, ...)
+        +LOG_ERROR(fmt, ...)
+        +{note} Compile-time color tag validation
+        +{note} Uses static_assert for validation
+    }
+
+    
+
+}
+
+' Relationships
+Logger ..> LogLevel : uses
+Logger *-- IFormatter : composition
+Logger *-- IWriter : composition
+Logger ..> LogEntry : creates
+
+IFormatter <|.. ConsoleFormatter
+IFormatter <|.. PlainFormatter
+' IFormatter <|.. JsonFormatter
+' IFormatter <|.. CsvFormatter
+' IFormatter <|.. XmlFormatter
+
+IWriter <|.. ConsoleWriter
+IWriter <|.. BufferedWriter
+BufferedWriter *-- IWriter : composition
+
+Logger ..> ColorHelper : uses
+Logger ..> ValidationUtils : uses
+Logger ..> StringUtils : uses
+
+ConsoleFormatter ..> ColorHelper : uses
+ConsoleFormatter ..> StringUtils : uses
+PlainFormatter ..> StringUtils : uses
+
+ColorHelper ..> ColorMapData : uses
+ValidationUtils ..> ColorMapData : uses
+
+GlobalFunctions ..> Logger : creates
+GlobalFunctions ..> LoggerConfig : creates
+LogMacros ..> GlobalFunctions : uses
+LogMacros ..> ValidationUtils : validates with
+
+@enduml
