@@ -3,8 +3,6 @@
 ' 色分け設定
 skinparam classBackgroundColor<<interface>> skyblue
 skinparam classBackgroundColor<<abstract>> lightyellow
-skinparam classBackgroundColor<<enum>> lightgreen
-skinparam classBackgroundColor<<macro>> lightcoral
 
 !theme plain
 skinparam packageStyle rectangle
@@ -20,31 +18,13 @@ package "logger" {
         -unique_ptr<IFormatter> formatter
         -unique_ptr<IWriter> writer
         -log_internal(LogLevel level, const char* file, int line, const char* message)
-        +Logger()
+        +Logger(unique_ptr<IFormatter> fmt, unique_ptr<IWriter> wrt)
         +set_level(LogLevel level)
         +get_level() : LogLevel
-        +set_formatter(unique_ptr<IFormatter> formatter)
-        +set_writer(unique_ptr<IWriter> writer)
         +debug(const char* file, int line, const char* fmt, ...)
         +info(const char* file, int line, const char* fmt, ...)
         +warning(const char* file, int line, const char* fmt, ...)
         +error(const char* file, int line, const char* fmt, ...)
-    }
-
-    class LoggerConfig {
-        +LogLevel min_level
-        +bool color_enabled
-        +bool show_timestamp
-        +set_min_level(LogLevel level)
-        +set_color_enabled(bool enabled)
-    }
-
-    package "ColorMap" {
-        class ColorMapData <<utility>> {
-            +{static} ANSI_COLORS : map<char, const char*>
-            +{static} LEVEL_COLORS : map<LogLevel, const char*>
-            +{static} RESET : const char*
-        }
     }
 }
 
@@ -63,16 +43,6 @@ package "logger::Formatters" {
     class PlainFormatter {
         +format(const LogEntry& entry, char* output, int max_len)
     }
-    ' 以下のクラスはコメントアウト
-    ' class JsonFormatter {
-    '     +format(const LogEntry& entry, char* output, int max_len)
-    ' }
-    ' class CsvFormatter {
-    '     +format(const LogEntry& entry, char* output, int max_len)
-    ' }
-    ' class XmlFormatter {
-    '     +format(const LogEntry& entry, char* output, int max_len)
-    ' }
 }
 
 ' Writers Package
@@ -118,8 +88,8 @@ package "logger::Utils" {
     }
 }
 
-' Core Types Package
-package "Core Types" {
+' Types Package
+package "gloval Types" {
     enum LogLevel <<enum>> {
         DEBUG
         INFO
@@ -134,14 +104,24 @@ package "Core Types" {
         +const char* function
         +const char* message
     }
+    
+    package "ColorMap" {
+        class ColorMapData <<utility>> {
+            +{static} ANSI_COLORS : map<char, const char*>
+            +{static} LEVEL_COLORS : map<LogLevel, const char*>
+            +{static} RESET : const char*
+        }
+    }
 }
 
 ' Global API Package - Updated
 package "Global API" {
     class GlobalFunctions <<utility>> {
         +{static} get_logger() : Logger&
-        +{static} get_logger_config() : LoggerConfig&
-        +{note} Returns static instances
+        +{note} Returns static Logger instance
+        +{note} Uses std::once_flag for thread safety
+        +{note} Initializes with ConsoleFormatter and ConsoleWriter
+        +{note} Sets default level to INFO
     }
 
     class LogMacros <<macro>> {
@@ -152,41 +132,34 @@ package "Global API" {
         +{note} Compile-time color tag validation
         +{note} Uses static_assert for validation
     }
-
-    
-
 }
 
 ' Relationships
-Logger ..> LogLevel : uses
+Logger ..> LogLevel
 Logger *-- IFormatter : composition
 Logger *-- IWriter : composition
 Logger ..> LogEntry : creates
 
 IFormatter <|.. ConsoleFormatter
 IFormatter <|.. PlainFormatter
-' IFormatter <|.. JsonFormatter
-' IFormatter <|.. CsvFormatter
-' IFormatter <|.. XmlFormatter
 
 IWriter <|.. ConsoleWriter
 IWriter <|.. BufferedWriter
 BufferedWriter *-- IWriter : composition
 
-Logger ..> ColorHelper : uses
-Logger ..> ValidationUtils : uses
-Logger ..> StringUtils : uses
+Logger ..[#blue]> ColorHelper
+Logger ..[#blue]> ValidationUtils
+Logger ..[#blue]> StringUtils
 
-ConsoleFormatter ..> ColorHelper : uses
-ConsoleFormatter ..> StringUtils : uses
-PlainFormatter ..> StringUtils : uses
+ConsoleFormatter ..[#blue]> ColorHelper
+ConsoleFormatter ..[#blue]> StringUtils
+PlainFormatter ..[#blue]> StringUtils
 
-ColorHelper ..> ColorMapData : uses
-ValidationUtils ..> ColorMapData : uses
+ColorHelper ..> ColorMapData
+ValidationUtils ..> ColorMapData
 
 GlobalFunctions ..> Logger : creates
-GlobalFunctions ..> LoggerConfig : creates
-LogMacros ..> GlobalFunctions : uses
-LogMacros ..> ValidationUtils : validates with
+LogMacros ..> GlobalFunctions
+LogMacros ..[#blue]> ValidationUtils : validates with
 
 @enduml

@@ -2,7 +2,6 @@
  * @file logger.hpp
  * @brief C++用高機能ログライブラリ - パブリックインターフェース
  * @details ユーザー向けのメインAPIを提供
- * get_logger().set_level(LogLevel::DEBUG);  // DEBUGレベル以上を表示
  * LOG_DEBUG("デバッグメッセージy|黄色|: %s", "詳細情報");
  * @author ren255
  */
@@ -15,6 +14,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <memory>
+#include <mutex>  // std::once_flag, std::call_onceに必要
 #include <map>
 
 #include "log_type.hpp"
@@ -31,12 +31,24 @@
  */
 logger::Logger& get_logger() {
     static std::once_flag flag;
-    static std::unique_ptr<Logger> instance;
+    static std::unique_ptr<logger::Logger> instance;
+    static bool enable_color = false;  // staticにして関数全体で使用可能に
 
-    std::call_once(flag, []() {
-        instance = std::make_unique<Logger>(
-            std::make_unique<Formatters::ConsoleFormatter>(true),
-            std::make_unique<Writers::ConsoleWriter>());
+    std::call_once(flag, [&]() {  // enable_colorをキャプチャ
+        instance = std::make_unique<logger::Logger>(
+            std::make_unique<logger::Formatters::ConsoleFormatter>(
+                enable_color),
+            std::make_unique<logger::Writers::ConsoleWriter>());
+
+        instance->set_level(LogLevel::INFO);
+        // info()メソッドは (file, line, fmt, ...)
+        // の形式なので、適切な引数を渡す
+        instance->info(__FILE__, __LINE__,
+                       "Logger initialized with default settings.");
+
+        const char* col_msg =
+            enable_color ? "g|enabled|" : "disabled";  // const char*に修正
+        instance->info(__FILE__, __LINE__, "Color output is %s.", col_msg);
     });
 
     return *instance;
