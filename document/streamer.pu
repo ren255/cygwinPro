@@ -1,0 +1,266 @@
+@startuml loggerwithstreamer
+
+' 色分け設定
+skinparam classBackgroundColor<<interface>> skyblue
+skinparam classBackgroundColor<<abstract>> lightyellow
+skinparam classBackgroundColor<<new>> lightgreen
+
+!theme plain
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam classFontSize 10
+skinparam packageFontSize 12
+skinparam linetype ortho
+
+' Main Logger Package
+package "logger" {
+    class Logger {
+        -LogLevel current_level
+        -unique_ptr<IFormatter> formatter
+        -unique_ptr<IWriter> writer
+        -log_internal(LogLevel level, const char* file, int line, const char* message)
+        +Logger(unique_ptr<IFormatter> fmt, unique_ptr<IWriter> wrt)
+        +set_level(LogLevel level)
+        +get_level() : LogLevel
+        +debug(const char* file, int line, const char* fmt, ...)
+        +info(const char* file, int line, const char* fmt, ...)
+        +warning(const char* file, int line, const char* fmt, ...)
+        +error(const char* file, int line, const char* fmt, ...)
+    }
+
+    class Streamer <<new>> {
+        -map<string, StreamEntry> stream_entries
+        -vector<string> display_order
+        -unique_ptr<IFormatter> formatter
+        -unique_ptr<IWriter> writer
+        -stream_internal(const char* name, const char* message)
+        +Streamer(unique_ptr<IFormatter> fmt, unique_ptr<IWriter> wrt)
+        +update_sensor(const char* name, const char* fmt, ...)
+        +set_display_order(const vector<string>& order)
+        +get_display_order() : vector<string>
+        +clear_sensor(const char* name)
+        +refresh_all()
+    }
+}
+
+' Formatters Package
+package "logger::Formatters" {
+    interface IFormatter <<interface>> {
+        +{abstract} format(const LogEntry& entry, char* output, int max_len)
+        +{abstract} format(const StreamEntry& entry, char* output, int max_len)
+    }
+
+    class ConsoleFormatter {
+        -bool color_enabled
+        +ConsoleFormatter(bool enable_color)
+        +format(const LogEntry& entry, char* output, int max_len)
+        +format(const StreamEntry& entry, char* output, int max_len)
+    }
+
+    class PlainFormatter {
+        +format(const LogEntry& entry, char* output, int max_len)
+        +format(const StreamEntry& entry, char* output, int max_len)
+    }
+
+    class StreamFormatter <<new>> {
+        -bool color_enabled
+        -int fixed_width
+        +StreamFormatter(bool enable_color, int width)
+        +format(const StreamEntry& entry, char* output, int max_len)
+    }
+}
+
+' Writers Package
+package "logger::Writers" {
+    interface IWriter <<interface>> {
+        +{abstract} write(const char* message)
+    }
+
+    class ConsoleWriter {
+        +write(const char* message)
+    }
+
+    class BufferedWriter {
+        -{static} BUFFER_SIZE : int
+        -buffer : char[BUFFER_SIZE]
+        -buffer_pos : int
+        -underlying_writer : unique_ptr<IWriter>
+        +BufferedWriter(unique_ptr<IWriter> writer)
+        +write(const char* message)
+        +flush()
+        +~BufferedWriter()
+    }
+
+    class StreamWriter <<new>> {
+        -int current_row
+        -int max_rows
+        -int base_row
+        +StreamWriter(int base, int max)
+        +write(const char* message)
+        +set_position(int row)
+        +clear_area()
+    }
+
+    class DualWriter <<new>> {
+        -unique_ptr<IWriter> log_writer
+        -unique_ptr<IWriter> stream_writer
+        -unique_ptr<LayoutManager> layout_manager
+        +DualWriter(unique_ptr<IWriter> log, unique_ptr<IWriter> stream)
+        +write(const char* message)
+        +write_stream(const char* messages)
+        +init_display()
+        +refresh_layout()
+    }
+}
+
+' Utils Package
+package "logger::Utils" {
+    class ColorHelper <<utility>> {
+        +{static} get_level_color(LogLevel level, bool color_enabled) : const char*
+        +{static} get_stream_color(const char* name, bool color_enabled) : const char*
+        +{static} get_reset_color(bool color_enabled) : const char*
+        +{static} parse_color_tags(const char* input, char* output, int max_len, bool color_enabled)
+        +{static} strip_color_tags(const char* input, char* output, int max_len)
+    }
+
+    class ValidationUtils <<utility>> {
+        +{static} check_colors_ct(const char* input) : constexpr bool
+        +{static} validate_color_tags_runtime(const char* input) : bool
+    }
+
+    class StringUtils <<utility>> {
+        +{static} extract_filename(const char* filepath) : const char*
+        +{static} get_level_string(LogLevel level) : const char*
+        +{static} safe_strcpy(char* dest, const char* src, int max_len)
+    }
+
+    class ScreenUtils <<new>> <<utility>> {
+        +{static} save_cursor()
+        +{static} restore_cursor()
+        +{static} move_cursor(int row, int col)
+        +{static} clear_line()
+        +{static} get_terminal_size(int& width, int& height)
+        +{static} hide_cursor(bool hide)
+    }
+
+    class LayoutManager <<new>> <<utility>> {
+        -int stream_area_top
+        -int stream_area_height
+        -int log_area_top
+        -int log_area_height
+        +init_layout()
+        +get_stream_pos(int index) : int
+        +get_log_pos() : int
+        +update_layout()
+    }
+}
+
+' Types Package
+package "global Types" {
+    enum LogLevel <<enum>> {
+        DEBUG
+        INFO
+        WARNING
+        ERROR
+    }
+
+    class LogEntry {
+        +LogLevel level
+        +const char* filename
+        +int line
+        +const char* function
+        +const char* message
+    }
+
+    class StreamEntry <<new>> {
+        +const char* name
+        +const char* message
+        +time_t timestamp
+        +int display_order
+    }
+    
+    package "ColorMap" {
+        class ColorMapData <<utility>> {
+            +{static} ANSI_COLORS : map<char, const char*>
+            +{static} LEVEL_COLORS : map<LogLevel, const char*>
+            +{static} STREAM_COLORS : map<string, const char*>
+            +{static} RESET : const char*
+        }
+    }
+}
+
+' Global API Package
+package "Global API" {
+    class GlobalFunctions <<utility>> {
+        +{static} get_logger() : Logger&
+        +{static} get_streamer() : Streamer&
+        +{static} setup_dual_display()
+        +{note} Returns static instances
+        +{note} Uses std::once_flag for thread safety
+        +{note} Initializes with appropriate formatters and writers
+    }
+
+    class LogMacros <<macro>> {
+        +LOG_DEBUG(fmt, ...)
+        +LOG_INFO(fmt, ...)
+        +LOG_WARNING(fmt, ...)
+        +LOG_ERROR(fmt, ...)
+        +STREAM(name, fmt, ...)
+        +STREAM_FLASH(name, fmt, ..., clear=false)
+        +INIT_LAYOUT()
+        +{note} Compile-time color tag validation
+        +{note} Uses static_assert for validation
+    }
+}
+
+' Relationships
+Logger ..> LogLevel
+Logger *-- IFormatter : composition
+Logger *-- IWriter : composition
+Logger ..> LogEntry : creates
+
+Streamer ..> StreamEntry : creates
+Streamer *-- IFormatter : composition
+Streamer *-- IWriter : composition
+
+IFormatter <|.. ConsoleFormatter
+IFormatter <|.. PlainFormatter
+IFormatter <|.. StreamFormatter
+
+IWriter <|.. ConsoleWriter
+IWriter <|.. BufferedWriter
+IWriter <|.. StreamWriter
+IWriter <|.. DualWriter
+
+BufferedWriter *-- IWriter : composition
+DualWriter *-- IWriter : log_writer
+DualWriter *-- IWriter : stream_writer
+DualWriter *-- LayoutManager : composition
+
+Logger ..[#blue]> ColorHelper
+Logger ..[#blue]> ValidationUtils
+Logger ..[#blue]> StringUtils
+
+Streamer ..[#blue]> ColorHelper
+Streamer ..[#blue]> ValidationUtils
+Streamer ..[#blue]> StringUtils
+Streamer ..[#blue]> ScreenUtils
+
+ConsoleFormatter ..[#blue]> ColorHelper
+ConsoleFormatter ..[#blue]> StringUtils
+PlainFormatter ..[#blue]> StringUtils
+StreamFormatter ..[#blue]> ColorHelper
+StreamFormatter ..[#blue]> StringUtils
+
+StreamWriter ..[#blue]> ScreenUtils
+DualWriter ..[#blue]> ScreenUtils
+
+ColorHelper ..> ColorMapData
+ValidationUtils ..> ColorMapData
+
+GlobalFunctions ..> Logger : creates
+GlobalFunctions ..> Streamer : creates
+LogMacros ..> GlobalFunctions
+LogMacros ..[#blue]> ValidationUtils : validates with
+
+@enduml
