@@ -7,18 +7,6 @@ class LoggerConfig;
 }  // namespace logger
 
 /**
- * @brief グローバルLoggerインスタンスを取得
- * @details シングルトンパターンでLoggerインスタンスを提供
- * @return Loggerインスタンスへの参照
- */
-logger::Logger& get_logger();
-/**
- * @brief ロガー設定を取得
- * @return LoggerConfigインスタンスへの参照
- */
-logger::LoggerConfig& get_logger_config();
-
-/**
  * @brief ログレベル列挙型
  * @details ログメッセージの重要度を定義
  */

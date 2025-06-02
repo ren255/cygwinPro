@@ -2,7 +2,13 @@
  * @file sosuu.c
  * @author 24-326 Ren Toda
  * @brief if文を使って素数判定を行うプログラム
- * @details if文の練習
+ * @details
+ * objective:
+ * if文の練習
+ * usage:
+ * - コンパイル: `gcc sosuu.c -o o/sosuu`
+ * - 実行: `./o/sosuu`
+ * - 素数判定対象を入力
  * @date 2025-05-27
  * @copyright Copyright (c) 2025
  */
@@ -10,7 +16,7 @@
 #include "stdio.h"
 
 int checkPrime(int num);
-int roop(void);
+int loop(void);
 
 int main(void) {
     int num;  // 受け取る数
@@ -54,7 +60,7 @@ int main(void) {
     return 0;
 }
 
-int roop(void) {
+int loop(void) {
     for (int i = -10; i <= 150; i++) {
         printf("素数判定: %d     ", i);
         checkPrime(i);
