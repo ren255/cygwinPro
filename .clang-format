@@ -335,7 +335,7 @@ IncludeIsMainSourceRegex: ''
 IndentAccessModifiers: false
 # アクセス修飾子 (`public:`, `private:`) 自体をインデントしません。`AccessModifierOffset` で制御されます。
 
-IndentCaseLabels: true
+IndentCaseLabels: false
 # switch文のcaseラベルをインデントします。
 # switch (var) {
 #   case 1: // ← インデントされる

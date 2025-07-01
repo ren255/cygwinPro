@@ -1,15 +1,17 @@
 /**
  * @file hightlow.c
- * @author 23-326 Ren Toda
- * @brief loop等の練習
+ * @author 24-326 Ren Toda
+ * @brief loop等の練習、数あてゲーム。
+ * `mkdir o; gcc hightlow.c -o o/hightlow && ./o/hightlow`
+ * でコンパイル->実行をできます。
  * @details
  * @copyright Copyright (c) 2025
  * @date 2025-07-1
  */
 
-#include <stdio.h>  // 標準入出力ライブラリ
-#include <stdlib.h>
-#include <time.h>
+#include <stdio.h>   // 標準入出力ライブラリ
+#include <stdlib.h>  //乱数のため
+#include <time.h>    //UNIX時間取得のため
 
 /**
  * @brief main funciton
@@ -17,11 +19,11 @@
  * @return 1 異常終了
  */
 int main(void) {
-    srand((unsigned int)time(NULL));
+    srand((unsigned int)time(NULL));  // UNIX時間で初期化
 
-    int answer = rand() % 100;
-    int guess;
-    int iteration = 0;
+    int answer = rand() % 100;  // 答え
+    int guess;                  // userの予測
+    int iteration = 0;          // 正当な質問数
 
     printf("乱数ゲームです 0~99で予想してください。\n");
 
