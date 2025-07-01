@@ -1,0 +1,608 @@
+# 木更津高専ロボット研究同好会
+# コーディングルール準拠 clang-format
+
+Language:        Cpp
+# 対象言語をC++に指定。通常は自動判別されますが、明示することで確実になります。
+
+BasedOnStyle:  Google
+# フォーマットの基本ルールとしてGoogle C++ Style Guideを採用します。
+# これ以降のオプションは、Googleスタイルからの変更点や追加設定となります。
+
+AccessModifierOffset: -4
+# public:, private:, protected: といったアクセス修飾子を、現在のインデントレベルから4文字分インデントを浅くします。
+# 例:
+# class MyClass {
+# private: // ← この行が4文字左に寄る
+#   int member_;
+# };
+
+AlignAfterOpenBracket: Align
+# 開き括弧 `(` や `<` の後で、要素を揃えます。
+# 例:
+# func(argument1,
+#      argument2); // ← argument2がargument1の開始位置に揃う
+
+AlignArrayOfStructures: Left
+# 構造体の配列の初期化時に要素を揃えるかどうか。
+# 例:
+# MyStruct array[] = {
+#    {1,    "Apple",  1.23},
+#    {100,  "Banana", 45.6},
+#    {2000, "Cherry", 7.8910}};
+#    ^      ^         ^
+# 各列が左揃えになるようにスペースが調整される
+
+AlignConsecutiveMacros: true
+# 連続するマクロ定義を揃える。
+# #define SHORT_MACRO            1
+# #define MUCH_LONGER_MACRO_NAME 200
+# #define ANOTHER_MACRO          30000
+#                                ^
+#                                値の開始位置が揃うようにスペースが調整される
+
+AlignConsecutiveAssignments: None
+# 連続する行の代入演算子 `=` の位置を揃えません。
+# Googleスタイルでは通常揃えませんが、明示的にNoneとしています。
+
+AlignConsecutiveBitFields: None
+# 連続する行のビットフィールド宣言を揃えません。
+
+AlignConsecutiveDeclarations: None
+# 連続する行の変数宣言を揃えません。
+
+AlignEscapedNewlines: Left
+# 行末のバックスラッシュ (`\`) によるエスケープされた改行を、左端に揃えます。
+# 例:
+# #define VERY_LONG_MACRO \
+#   PART1                 \  // ← このバックスラッシュが左端に寄る
+#   PART2
+
+AlignOperands:   Align
+# 二項演算子や三項演算子のオペランドを揃えます。
+# Googleスタイルでは通常 Don't Align ですが、ここでは Align になっています。
+# 例:
+# int a = 1   + 2;
+# int b = 100 + 200; // + や 2, 200 が揃う
+
+AlignTrailingComments: true
+# 行末コメントの開始位置を揃えます。
+
+AllowAllArgumentsOnNextLine: true
+# 関数の実引数が長すぎて1行に収まらない場合、全ての引数を次の行にまとめて配置することを許可します。
+
+AllowAllParametersOfDeclarationOnNextLine: true
+# 関数の仮引数宣言が長すぎて1行に収まらない場合、全ての仮引数を次の行にまとめて配置することを許可します。
+
+AllowShortEnumsOnASingleLine: true
+# 短いenum定義を1行にまとめることを許可します。
+# 例: enum MyEnum { A, B, C };
+
+AllowShortBlocksOnASingleLine: Never
+# 短いブロック (`{ ... }`) を1行にまとめることを許可しません。
+# 例: if (condition) { return; } は許可されず、以下のように展開されます。
+# if (condition) {
+#   return;
+# }
+
+AllowShortCaseLabelsOnASingleLine: false
+# switch文の短いcaseラベル (`case X: break;`) を1行にまとめることを許可しません。
+
+AllowShortFunctionsOnASingleLine: InlineOnly
+# 短い関数定義を全て1行にまとめることをインライン限定で許可します。
+# 例: void func() { doSomething(); }
+
+AllowShortLambdasOnASingleLine: All
+# 短いラムダ式を1行にまとめることを許可します。
+# 例: auto lambda = []{ return 42; };
+
+AllowShortIfStatementsOnASingleLine: WithoutElse
+# else節のない短いif文を1行にまとめることを許可します。
+# 例: if (condition) return;
+# ただし、if (condition) return; else return; は対象外。
+
+AllowShortLoopsOnASingleLine: true
+# 短いループ (for, while) を1行にまとめることを許可します。
+# 例: while (condition) continue;
+
+AlwaysBreakAfterDefinitionReturnType: None
+# 関数定義の戻り値の型の後で常に改行するかどうか。Noneは改行しません。
+
+AlwaysBreakAfterReturnType: None
+# 関数宣言の戻り値の型の後で常に改行するかどうか。Noneは改行しません。
+# Googleスタイルでは、戻り値の型が長い場合に改行することがあります。
+
+AlwaysBreakBeforeMultilineStrings: true
+# 複数行にわたる文字列リテラルの前で常に改行します。
+
+AlwaysBreakTemplateDeclarations: Yes
+# テンプレート宣言 (`template <...>` ) の後で常に改行します。
+# 例:
+# template <typename T> // ← この後で改行
+# class MyClass { ... };
+
+AttributeMacros:
+  - __capability
+# 属性のように扱われるマクロを指定します。これらは関数の型などと同様に扱われます。
+
+BinPackArguments: true
+# 関数の実引数を、ColumnLimitを超えない範囲でできるだけ1行に詰め込みます。
+# falseにすると、引数が複数ある場合に1引数1行になりやすいです。
+
+BinPackParameters: true
+# 関数の仮引数を、ColumnLimitを超えない範囲でできるだけ1行に詰め込みます。
+# falseにすると、仮引数が複数ある場合に1仮引数1行になりやすいです。
+
+BraceWrapping:
+  # 波括弧 `{}` の改行ルールを細かく設定します。
+  AfterCaseLabel:  false
+  # caseラベルの後の波括弧を改行しません。
+  # case X: {
+  #
+  # }
+  AfterClass:      false
+  # class定義の後の波括弧を改行しません (class MyClass { ... })。
+  AfterControlStatement: Never
+  # if, for, whileなどの制御文の後の波括弧を改行しません。
+  # if (condition) {
+  # Googleスタイルでは通常 Attach (改行しない) ですが、Never はより強い指定です。
+  AfterEnum:       false
+  # enum定義の後の波括弧を改行しません。
+  AfterFunction:   false
+  # 関数定義の後の波括弧を改行しません。
+  AfterNamespace:  false
+  # namespace定義の後の波括弧を改行しません。
+  AfterObjCDeclaration: false
+  # Objective-Cの宣言の後の波括弧を改行しません。
+  AfterStruct:     false
+  # struct定義の後の波括弧を改行しません。
+  AfterUnion:      false
+  # union定義の後の波括弧を改行しません。
+  AfterExternBlock: false
+  # extern "C" {} ブロックの後の波括弧を改行しません。
+  BeforeCatch:     false
+  # catchの前に波括弧を改行しません
+  # 例　} catch (...) {
+  BeforeElse:      false
+  # elseの前に波括弧を改行しません 　
+  # 例  } else {
+  BeforeLambdaBody: false
+  # ラムダ式の本体の前に波括弧を改行しません。
+  BeforeWhile:     false
+  # do-while文のwhileの前に波括弧を改行しません (} while (...);)。
+  IndentBraces:    false
+  # 波括弧自体をインデントしません。
+  # 例 (trueの場合):
+  # if (condition)
+  #   { // ← インデントされる
+  #     ...
+  #   }
+  SplitEmptyFunction: false
+  # 空の関数の波括弧を複数行に分割しません。
+  SplitEmptyRecord: false
+  # 空のクラス/構造体の波括弧を複数行に分割しません。
+  SplitEmptyNamespace: false
+  # 空の名前空間の波括弧を複数行に分割しません。
+
+BreakBeforeBinaryOperators: None
+# 二項演算子の前で改行するかどうか。Noneは演算子の後で改行します（または改行しない）。
+# Googleスタイルでは通常 NonAssignment (代入演算子以外は前で改行) です。
+# 例 (None):
+# int result = very_long_variable_name_1 +
+#              very_loBreakBeforeBinaryOperatorsng_variable_name_2;
+
+BreakBeforeConceptDeclarations: true
+# C++20 のコンセプト宣言の前で改行します。
+
+BreakBeforeBraces: Attach
+# 波括弧 `{}` を直前の要素と同じ行に配置します (K&Rスタイル)。
+# この設定は BraceWrapping の各詳細設定のデフォルト値に影響します。
+
+BreakBeforeInheritanceComma: false
+# 多重継承の際のカンマの前で改行しません。
+
+BreakInheritanceList: BeforeColon
+# 継承リストの改行位置。コロン `:` の前で改行します。
+# class Derived : // ← ここで改行の判断
+#     public Base1,
+#     public Base2
+
+BreakBeforeTernaryOperators: true
+# 三項演算子 `? :` の `?` の前で改行します。
+# result = condition ?
+#          true_value : false_value;
+
+BreakConstructorInitializersBeforeComma: false
+# コンストラクタ初期化子リストで、カンマの前で改行しません (カンマの後で改行)。
+
+BreakConstructorInitializers: BeforeColon
+# コンストラクタ初期化子リストのコロン `:` の前で改行するか、各初期化子の前で改行するかなどを指定します。
+# BeforeColon はコロンの前で改行します。
+# MyClass::MyClass()
+#     : member1_(value1) // ← コロンの後ろ、各初期化子の前
+#     , member2_(value2)
+# この設定は PackConstructorInitializers などと関連して動作します。
+
+BreakAfterJavaFieldAnnotations: false
+# Javaのフィールドアノテーションの後で改行しません。
+
+BreakStringLiterals: true
+# 長い文字列リテラルをColumnLimitに従って改行します。
+
+ColumnLimit:     80
+# 1行の最大文字数。Googleスタイルのデフォルトと同じです。
+
+CommentPragmas:  '^ IWYU pragma:'
+# 特殊なコメントとして扱うプラグマの正規表現。IWYU (Include What You Use) のプラグマを指定しています。
+
+QualifierAlignment: Leave
+# `const` や `volatile` などの修飾子の配置方法。Leaveは変更しません。
+# (注意: このオプションは非推奨になる可能性があります。PointerAlignmentやReferenceAlignmentを使用してください。)
+
+CompactNamespaces: false
+# `namespace A { namespace B { ... } }` を `namespace A::B { ... }` のようにコンパクトにしません。
+
+ConstructorInitializerIndentWidth: 4
+# コンストラクタ初期化子リストのインデント幅。
+
+ContinuationIndentWidth: 4
+# 行継続時のインデント幅。
+
+Cpp11BracedListStyle: true
+# C++11の波括弧初期化子リスト `{...}` で、可能な場合にスペースを省略し、よりコンパクトなスタイルにします。
+# 例: std::vector<int> v{1, 2, 3}; (falseだと v{ 1, 2, 3 }; のようになる)
+
+DeriveLineEnding: true
+# ファイル内の既存の改行コード (LF または CRLF) を自動検出し、それに合わせます。
+
+DerivePointerAlignment: true
+# ファイル内の既存のポインタ/参照の揃え方 (`*`/`&` の位置) を自動検出し、それに合わせます。
+# これが true の場合、`PointerAlignment` の設定は上書きされることがあります。
+
+DisableFormat:   false
+# `true` にすると、この設定ファイルの影響下にあるファイルのフォーマットを無効にします。
+
+EmptyLineAfterAccessModifier: Never
+# アクセス修飾子の後に空行を入れません。
+
+EmptyLineBeforeAccessModifier: LogicalBlock
+# アクセス修飾子の前に空行を入れるかどうか。LogicalBlockは論理的なブロックの区切りとして空行を入れます。
+
+ExperimentalAutoDetectBinPacking: false
+# 引数やパラメータの自動的な詰み込み（BinPacking）を実験的に検出するかどうか。
+
+PackConstructorInitializers: NextLine
+# コンストラクタ初期化子リストのパッキング方法。
+# NextLine: 全ての初期化子をコロンの次の行に配置し、インデントします。
+# MyClass::MyClass() :
+#     member1_(value1), member2_(value2), member3_(value3),
+#     member4_(value4)
+
+ConstructorInitializerAllOnOneLineOrOnePerLine: false
+# PackConstructorInitializersがBinPack(デフォルト)またはNextLineの場合に、全ての初期化子を1行に収めるか、1初期化子1行にするか。
+# falseなので、NextLineと組み合わせて、可能な限り1行に詰め込み、収まらなければ適切に改行します。
+
+AllowAllConstructorInitializersOnNextLine: true
+# 全てのコンストラクタ初期化子を次の行に配置することを許可します。PackConstructorInitializers: NextLine の動作を補強します。
+
+FixNamespaceComments: true
+# 名前空間の終わりに `// namespace MyNamespace` のようなコメントを自動で追加・修正します。
+
+ForEachMacros:
+  - foreach
+  - Q_FOREACH
+  - BOOST_FOREACH
+# foreachのように振る舞うマクロを指定します。これらは `for (...)` と同様にフォーマットされます。
+
+IfMacros:
+  - KJ_IF_MAYBE
+# ifのように振る舞うマクロを指定します。
+
+IncludeBlocks:   Regroup
+# インクルードディレクティブを `IncludeCategories` に基づいて並べ替え、グループ化します。
+
+IncludeCategories:
+  # インクルードディレクティブをカテゴリ分けし、その順序とソート方法を指定します。
+  # Priorityが小さいものが先に来ます。
+  - Regex:           '^<ext/.*\.h>' # <ext/...h> (例: <ext/foo.h>)
+    Priority:        2
+    SortPriority:    0 # グループ内のソート優先度 (0はアルファベット順)
+    CaseSensitive:   false
+  - Regex:           '^<.*\.h>' # <....h> (例: <vector.h>, <string.h> ただし <ext/...> は上記でマッチ)
+    Priority:        1
+    SortPriority:    0
+    CaseSensitive:   false
+  - Regex:           '^<.*' # <...> (例: <vector>, <string> .hなし)
+    Priority:        2
+    SortPriority:    0
+    CaseSensitive:   false
+  - Regex:           '.*' # その他全て (例: "my_header.h")
+    Priority:        3
+    SortPriority:    0
+    CaseSensitive:   false
+# この設定だと、優先順位は以下のようになります:
+# 1. <foo.h>
+# 2. <ext/bar.h>, <vector> (これらはPriority 2なので、この中での順序は不定瞭。通常はRegexのマッチ順)
+# 3. "my_header.h"
+# ※ Priority 1 の `<.*\.h>` が先にきそうですが、Regexのマッチング順序も影響するため、実際に試して確認が必要です。
+# Googleスタイルでは、プロジェクト固有ヘッダ、C++標準ライブラリ、Cライブラリ、その他のライブラリの順が一般的です。この設定は少し特殊です。
+
+IncludeIsMainRegex: '([-_](test|unittest))?$'
+# メインのソースファイル（例えば `foo.cpp` に対応する `foo.h`）を判断するための正規表現（ヘッダ側）。
+
+IncludeIsMainSourceRegex: ''
+# メインのヘッダファイルに対応するソースファイルを判断するための正規表現（ソース側）。
+
+IndentAccessModifiers: false
+# アクセス修飾子 (`public:`, `private:`) 自体をインデントしません。`AccessModifierOffset` で制御されます。
+
+IndentCaseLabels: true
+# switch文のcaseラベルをインデントします。
+# switch (var) {
+#   case 1: // ← インデントされる
+#     ...
+#     break;
+# }
+# Googleスタイルでは通常 false です。
+
+IndentCaseBlocks: false
+# caseブロック内の文をさらにインデントするかどうか。falseなので追加インデントなし。
+# (IndentCaseLabels: true との組み合わせで、case とその下の文が同じインデントレベルになる)
+
+IndentGotoLabels: true
+# gotoラベルをインデントします。
+
+IndentPPDirectives: None
+# プリプロセッサディレクティブ (`#if`, `#define` など) をインデントしません。
+
+IndentExternBlock: AfterExternBlock
+# `extern "C"` ブロックのインデント方法。AfterExternBlockは `{` の後からインデントします。
+# extern "C" {
+#   void func(); // ← インデントされる
+# }
+
+IndentRequires:  false
+# C++20 の `requires` 節をインデントしません。
+
+IndentWidth:     4
+# 基本のインデント幅。スペース4つ。
+
+IndentWrappedFunctionNames: false
+# 関数の戻り値の型と関数名が別の行になった場合、関数名をインデントしません。
+
+InsertTrailingCommas: None
+# 複数行になるコンテナリテラルやパラメータリストの末尾にカンマを自動挿入しません。
+# (ES5の `comma-dangle` のような機能)
+
+JavaScriptQuotes: Leave
+# JavaScriptの引用符の扱い。変更しません。
+JavaScriptWrapImports: true
+# JavaScriptのimport文を折り返します。
+
+KeepEmptyLinesAtTheStartOfBlocks: false
+# ブロックの先頭にある空行を保持しません。
+
+LambdaBodyIndentation: Signature
+# ラムダ式の本体のインデントを、ラムダ式のシグネチャーに合わせます。
+
+MacroBlockBegin: ''
+MacroBlockEnd:   ''
+# フォーマット対象外とするマクロブロックの開始と終了を指定する正規表現。空なので指定なし。
+
+MaxEmptyLinesToKeep: 1
+# 連続して保持する最大の空行数。これを超える空行は削除されます。
+
+NamespaceIndentation: None
+# 名前空間 (`namespace`) の内容をインデントしません。
+# namespace MyNamespace {
+# int var; // ← インデントされない
+# }
+# Googleスタイルでは通常 Inner (内容をインデント) です。
+
+ObjCBinPackProtocolList: Never
+# Objective-Cのプロトコルリストを1行に詰め込みません。
+ObjCBlockIndentWidth: 2 # Objective-C用のインデント幅。C++のIndentWidthとは独立
+# Objective-Cのブロックのインデント幅。
+ObjCBreakBeforeNestedBlockParam: true
+# Objective-Cのネストされたブロックパラメータの前で改行します。
+ObjCSpaceAfterProperty: false
+# Objective-Cの@propertyの後にスペースを入れません。
+ObjCSpaceBeforeProtocolList: true
+# Objective-Cのプロトコルリストの前にスペースを入れます。
+
+PenaltyBreakAssignment: 2
+# 代入文を改行する際のペナルティ値。値が小さいほど改行されやすくなります。
+PenaltyBreakBeforeFirstCallParameter: 1
+# 最初の関数呼び出しパラメータの前で改行する際のペナルティ値。
+PenaltyBreakComment: 300
+# コメントを改行する際のペナルティ値。
+PenaltyBreakFirstLessLess: 120
+# `<<` 演算子の最初のものの前で改行する際のペナルティ値 (主にストリーム出力)。
+PenaltyBreakOpenParenthesis: 0
+# 開き括弧 `(` の直後で改行する場合のペナルティ。0 なので改行を厭わない。
+PenaltyBreakString: 1000
+# 文字列リテラルを改行する際のペナルティ値。
+PenaltyBreakTemplateDeclaration: 10
+# テンプレート宣言を改行する際のペナルティ値。
+PenaltyExcessCharacter: 1000000
+# ColumnLimitを超えた文字に対するペナルティ値。非常に大きいので、ColumnLimitは厳守されます。
+PenaltyReturnTypeOnItsOwnLine: 200
+# 関数の戻り値の型を独立した行に配置する際のペナルティ値。
+PenaltyIndentedWhitespace: 0
+# 行頭以外のインデントされた空白に対するペナルティ。0は影響なし。
+
+PointerAlignment: Left
+# ポインタの `*` や参照の `&` を型名側に寄せます (例: `int* p;`)。Googleスタイルのデフォルトと同じです。
+
+PPIndentWidth:   -1 # IndentWidth (4) に従います。
+# プリプロセッサディレクティブ内のインデント幅。-1はIndentWidthに従います。
+
+RawStringFormats:
+  # 生文字列リテラルのフォーマットルールを言語ごとに指定します。
+  - Language:        Cpp
+    Delimiters:      [cc, CC, cpp, Cpp, CPP, 'c++', 'C++']
+    CanonicalDelimiter: ''
+    BasedOnStyle:    google
+  - Language:        TextProto
+    Delimiters:      [pb, PB, proto, PROTO]
+    EnclosingFunctions: [EqualsProto, EquivToProto, PARSE_PARTIAL_TEXT_PROTO, PARSE_TEST_PROTO, PARSE_TEXT_PROTO, ParseTextOrDie, ParseTextProtoOrDie, ParseTestProto, ParsePartialTestProto]
+    CanonicalDelimiter: pb
+    BasedOnStyle:    google
+
+ReferenceAlignment: Pointer
+# 参照の `&` の揃え方をポインタ (`*`) と同じルール (PointerAlignment) に従わせます。
+
+ReflowComments:  true
+# ColumnLimitを超えたコメントを自動で整形（折り返し）します。
+
+RemoveBracesLLVM: false
+# LLVMスタイルで単文の場合に省略可能な波括弧を削除しません。
+
+SeparateDefinitionBlocks: Leave
+# 関数やクラスなどの定義ブロック間をどのように区切るか。Leaveは変更しません。
+
+ShortNamespaceLines: 1
+# 1行に収まる短い名前空間定義を許可します（例: `namespace N { int i; }`）。
+
+SortIncludes:    Never
+# インクルードディレクティブをソートします。
+
+SortJavaStaticImport: Before
+# Javaのstatic import文を通常のimport文の前にソートします。
+
+SortUsingDeclarations: true
+# `using` 宣言をアルファベット順にソートします。
+
+SpaceAfterCStyleCast: false
+# Cスタイルキャスト `(type)value` のキャスト括弧の後にスペースを入れません。
+
+SpaceAfterLogicalNot: false
+# 論理否定演算子 `!` の後にスペースを入れません (例: `!condition`)。
+
+SpaceAfterTemplateKeyword: true
+# `template` キーワードの後にスペースを入れます。
+
+SpaceBeforeAssignmentOperators: true
+# 代入演算子 (`=`, `+=` など) の前にスペースを入れます。
+
+SpaceBeforeCaseColon: false
+# `case` 文のコロン `:` の前にスペースを入れません (例: `case X:`)。
+
+SpaceBeforeCpp11BracedList: false
+# C++11の波括弧初期化子リスト `{` の前にスペースを入れません。
+# 例: `int x[]{1, 2};` (trueだと `int x[] {1, 2};`)
+
+SpaceBeforeCtorInitializerColon: true
+# コンストラクタ初期化子リストのコロン `:` の前にスペースを入れます。
+# MyClass::MyClass() : member_(value) // コロンの前にスペース
+
+SpaceBeforeInheritanceColon: true
+# 継承リストのコロン `:` の前にスペースを入れます。
+# class Derived : public Base // コロンの前にスペース
+
+SpaceBeforeParens: Never
+# 括弧 `()` の前にスペースを入れません。
+# 例:
+# if(condition){ ... }
+# func(); // スペースなし
+
+SpaceBeforeParensOptions:
+  # SpaceBeforeParens の動作をさらに細かく制御します。
+  AfterControlStatements: false
+  # 制御文の後に続く括弧の前にスペースを入れることを保証します。
+  AfterForeachMacros: false
+  # ForEachMacrosで指定されたマクロの後に続く括弧の前にスペースを入れます。
+  AfterFunctionDefinitionName: false
+  # 関数定義名の後に続く括弧の前にスペースを入れません。
+  AfterFunctionDeclarationName: false
+  # 関数宣言名の後に続く括弧の前にスペースを入れません。
+  AfterIfMacros:   false
+  # IfMacrosで指定されたマクロの後に続く括弧の前にスペースを入れます。
+  AfterOverloadedOperator: false
+  # オーバーロードされた演算子の宣言/定義名の後に続く括弧の前にスペースを入れません。
+  BeforeNonEmptyParentheses: false
+  # 空でない括弧の前にスペースを入れません。
+
+SpaceAroundPointerQualifiers: Default
+# ポインタ修飾子 (`*`, `&`) の前後にスペースを入れるかどうか。DefaultはPointerAlignmentに従います。
+
+SpaceBeforeRangeBasedForLoopColon: true
+# レンジベースforループのコロン `:` の前にスペースを入れます。
+# for (auto x : container) // コロンの前にスペース
+
+SpaceInEmptyBlock: false
+# 空のブロック `{}` の中にスペースを入れません。
+
+SpaceInEmptyParentheses: false
+# 空の括弧 `()` の中にスペースを入れません。例: `func()`
+
+SpacesBeforeTrailingComments: 2
+# 行末コメントの前に最低2つのスペースを入れます。
+
+SpacesInAngles:  Never
+# テンプレートの山括弧 `< >` の内側にスペースを入れません。
+# 例: `std::vector<int>`
+# Googleスタイルでは通常 false (スペースを入れない) ですが、Neverはより強い指定です。
+
+SpacesInConditionalStatement: false
+# 三項演算子 `? :` の条件式 `cond ? true_val : false_val` の `?` と `:` の周りにスペースを入れるか。
+# false なので `cond?true_val:false_val` のように詰めます（ただし演算子の前後のスペースは他のオプションで制御される）。
+
+SpacesInContainerLiterals: true
+# コンテナリテラル (C++11の波括弧初期化リストなど) の内側の要素の区切りカンマの後と、波括弧の始まりと終わりにスペースを入れます。
+# 例: `std::vector<int> v = { 1, 2, 3 };`
+# Googleスタイルでは通常 false です。
+
+SpacesInCStyleCastParentheses: false
+# Cスタイルキャストの括弧 `(type)value` の内側にスペースを入れません。
+
+SpacesInLineCommentPrefix:
+  # 行コメント `//` の後のスペースに関する設定。
+  Minimum:         1
+  # `//` とコメント本文の間に最低1つのスペースを入れます。
+  Maximum:         -1
+  # 最大スペース数。-1は制限なし。
+
+SpacesInParentheses: false
+# 括弧 `()` の内側にスペースを入れません。
+# 例: `func( arg1, arg2 )` ではなく `func(arg1, arg2)`
+
+SpacesInSquareBrackets: false
+# 角括弧 `[]` の内側にスペースを入れません。
+# 例: `arr[index]`
+
+SpaceBeforeSquareBrackets: false
+# 角括弧 `[` の前にスペースを入れません。
+# 例: `arrayName[`
+
+BitFieldColonSpacing: Both
+# ビットフィールドのコロン `:` の前後にスペースを入れます。
+# struct S { int bitfield : 1; };
+
+Standard:        Auto
+# 準拠するC++標準。Autoは自動検出。
+
+StatementAttributeLikeMacros:
+  - Q_EMIT
+# 文の属性のように振る舞うマクロ。
+
+StatementMacros:
+  - Q_UNUSED
+  - QT_REQUIRE_VERSION
+# 文として扱われるマクロ。これらのマクロ呼び出しの後にセミコロンが自動で挿入されるようになります。
+
+TabWidth:        8 # IndentWidth がスペースになったため、この値は実質的に使用されません。
+# タブ文字の幅。`UseTab: Never` なので、実際には使われません。
+
+UseCRLF:         false
+# 改行コードとしてCRLF (Windows形式) を使用しません (LFを使用)。
+
+UseTab:          Never
+# インデントにタブ文字を使用せず、常にスペースを使用します。Googleスタイルの推奨。
+
+WhitespaceSensitiveMacros:
+  - STRINGIZE
+  - PP_STRINGIZE
+  - BOOST_PP_STRINGIZE
+  - NS_SWIFT_NAME
+  - CF_SWIFT_NAME
+# 空白の有無が意味を持つマクロ。これらのマクロ内のフォーマットは抑制されます。
